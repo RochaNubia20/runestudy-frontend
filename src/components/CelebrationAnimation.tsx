@@ -27,9 +27,9 @@ export const CelebrationAnimation = ({ type, message, onComplete }: CelebrationA
         <div className="absolute inset-0 animate-ping">
           <Sparkles className="w-16 h-16 text-primary mx-auto" />
         </div>
-        <div className="relative bg-card/95 border-4 border-primary pixel-corners p-6 mystic-border animate-scale-in">
-          <Sparkles className="w-12 h-12 text-primary mx-auto mb-3 animate-pulse-glow" />
-          <p className="text-lg font-bold text-center text-primary mystic-glow">
+        <div className="relative bg-card/95 border-4 border-primary pixel-corners p-5 mystic-border animate-scale-in">
+          <Sparkles className="w-10 h-10 text-primary mx-auto mb-2 animate-pulse-glow" />
+          <p className="text-base font-bold text-center text-primary mystic-glow">
             Tarefa Completa!
           </p>
           <p className="text-xs text-muted-foreground text-center mt-2">+XP Ganho</p>
@@ -89,19 +89,19 @@ export const CelebrationAnimation = ({ type, message, onComplete }: CelebrationA
           <div className="w-96 h-96 bg-gradient-radial from-primary/50 via-secondary/30 to-transparent animate-pulse-glow" />
         </div>
 
-        <div className="relative bg-card/95 border-8 border-primary pixel-corners p-12 mystic-border shadow-[0_0_50px_rgba(74,222,128,0.8)]">
-          <div className="flex items-center justify-center gap-4 mb-6">
-            <Zap className="w-12 h-12 text-primary animate-pulse-glow" />
-            <Trophy className="w-20 h-20 text-secondary animate-float" />
-            <Zap className="w-12 h-12 text-primary animate-pulse-glow" />
+        <div className="relative bg-card/95 border-8 border-primary pixel-corners p-10 mystic-border shadow-[0_0_50px_rgba(74,222,128,0.8)]">
+          <div className="flex items-center justify-center gap-3 mb-5">
+            <Zap className="w-10 h-10 text-primary animate-pulse-glow" />
+            <Trophy className="w-16 h-16 text-secondary animate-float" />
+            <Zap className="w-10 h-10 text-primary animate-pulse-glow" />
           </div>
           
-          <p className="text-4xl font-bold text-center mb-4">
+          <p className="text-3xl font-bold text-center mb-3">
             <span className="text-primary mystic-glow">NÍVEL</span>{" "}
             <span className="text-secondary mystic-glow">MÁXIMO!</span>
           </p>
           
-          <p className="text-lg text-center text-foreground mb-2 font-bold">
+          <p className="text-base text-center text-foreground mb-1 font-bold">
             🎉 INCRÍVEL! 🎉
           </p>
           

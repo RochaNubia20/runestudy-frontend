@@ -18,8 +18,8 @@ const buttonVariants = cva(
         mystic: "bg-gradient-to-r from-primary to-secondary text-primary-foreground hover:opacity-90 shadow-[0_0_20px_hsl(var(--primary)/0.4)] hover:shadow-[0_0_30px_hsl(var(--primary)/0.6)] border-2 border-primary animate-pulse-glow",
       },
       size: {
-        default: "h-11 px-6 py-2",
-        sm: "h-9 rounded-sm px-4",
+        default: "h-9 px-5 py-1.5",
+        sm: "h-8 rounded-sm px-3",
         lg: "h-14 rounded-sm px-10 text-base",
         icon: "h-10 w-10",
       },

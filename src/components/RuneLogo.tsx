@@ -2,15 +2,15 @@ import runeStudyLogo from "@/assets/runestudy-logo.png";
 
 export const RuneLogo = ({ size = "md" }: { size?: "sm" | "md" | "lg" }) => {
   const sizeClasses = {
-    sm: "w-6 h-6",
-    md: "w-16 h-16",
-    lg: "w-24 h-24"
+    sm: "w-5 h-5",
+    md: "w-12 h-12",
+    lg: "w-20 h-20"
   };
 
   const textSizeClasses = {
     sm: "text-xs",
-    md: "text-xl",
-    lg: "text-3xl"
+    md: "text-base",
+    lg: "text-2xl"
   };
 
   return (

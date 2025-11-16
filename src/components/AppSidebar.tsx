@@ -51,7 +51,7 @@ export function AppSidebar() {
                           : "hover:bg-muted/50"
                       }
                     >
-                      <item.icon className="w-4 h-4" />
+                      <item.icon className="w-6 h-6" />
                       {open && <span className="text-xs">{item.title}</span>}
                     </NavLink>
                   </SidebarMenuButton>

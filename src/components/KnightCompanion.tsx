@@ -49,7 +49,7 @@ export const KnightCompanion = () => {
                 Cavaleiro Guardião
               </h3>
             </div>
-            <p className="text-sm text-foreground leading-relaxed px-1">
+            <p className="text-xs text-foreground leading-relaxed px-1">
               {message}
             </p>
             

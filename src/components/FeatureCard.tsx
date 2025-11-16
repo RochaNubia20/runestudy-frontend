@@ -16,8 +16,8 @@ export const FeatureCard = ({ icon: Icon, title, description }: FeatureCardProps
         <div className="p-5 pixel-corners bg-primary/10 group-hover:bg-primary/20 transition-all group-hover:scale-110 duration-300 border-2 border-primary/30">
           <Icon className="w-10 h-10 text-primary group-hover:animate-pulse" />
         </div>
-        <h3 className="text-xl font-bold text-foreground group-hover:mystic-glow transition-all">{title}</h3>
-        <p className="text-muted-foreground leading-relaxed">{description}</p>
+        <h3 className="text-lg font-bold text-foreground group-hover:mystic-glow transition-all">{title}</h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">{description}</p>
       </div>
       
       <div className="absolute top-2 left-2 w-2 h-2 bg-primary/50 pixel-corners"></div>
