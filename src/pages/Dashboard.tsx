@@ -9,33 +9,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Trophy, Target, Coins, Zap, Book, Award, ShoppingBag, Sparkles, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { KnightCompanion } from "@/components/KnightCompanion";
+import { getEmoji, avatarEmojiIds } from "@/constants/emojiMap";
 
 const Dashboard = () => {
-  const [selectedAvatar, setSelectedAvatar] = useState("🧙");
+  const [selectedAvatar, setSelectedAvatar] = useState("wizard");
   const [userCoins, setUserCoins] = useState(250);
-  const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>(["🧙"]);
-  const [equippedCosmetic, setEquippedCosmetic] = useState("🧙");
+  const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>(["wizard"]);
+  const [equippedCosmetic, setEquippedCosmetic] = useState("wizard");
 
   const cosmetics = [
-    { id: "wizard", emoji: "🧙", name: "Mago Sábio", cost: 0, owned: true },
-    { id: "crown", emoji: "👑", name: "Coroa Real", cost: 100, owned: false },
-    { id: "knight", emoji: "⚔️", name: "Cavaleiro", cost: 150, owned: false },
-    { id: "shield", emoji: "🛡️", name: "Escudeiro", cost: 150, owned: false },
-    { id: "archer", emoji: "🏹", name: "Arqueiro", cost: 200, owned: false },
-    { id: "sword", emoji: "🗡️", name: "Espadachim", cost: 200, owned: false },
-    { id: "magic", emoji: "🔮", name: "Místico", cost: 250, owned: false },
-    { id: "thunder", emoji: "⚡", name: "Trovão", cost: 300, owned: false },
-    { id: "star", emoji: "🌟", name: "Estrelar", cost: 350, owned: false },
-    { id: "dragon", emoji: "🐉", name: "Domador de Dragões", cost: 500, owned: false },
+    { id: "wizard", emojiId: "wizard", name: "Mago Sábio", cost: 0, owned: true },
+    { id: "crown", emojiId: "crown", name: "Coroa Real", cost: 100, owned: false },
+    { id: "knight", emojiId: "knight", name: "Cavaleiro", cost: 150, owned: false },
+    { id: "shield", emojiId: "shield", name: "Escudeiro", cost: 150, owned: false },
+    { id: "archer", emojiId: "bow", name: "Arqueiro", cost: 200, owned: false },
+    { id: "sword", emojiId: "sword", name: "Espadachim", cost: 200, owned: false },
+    { id: "magic", emojiId: "crystal", name: "Místico", cost: 250, owned: false },
+    { id: "thunder", emojiId: "lightning", name: "Trovão", cost: 300, owned: false },
+    { id: "star", emojiId: "star", name: "Estrelar", cost: 350, owned: false },
+    { id: "dragon", emojiId: "dragon", name: "Domador de Dragões", cost: 500, owned: false },
   ];
 
   const handleBuyCosmetic = (cosmetic: typeof cosmetics[0]) => {
-    if (userCoins >= cosmetic.cost && !ownedCosmetics.includes(cosmetic.emoji)) {
+    if (userCoins >= cosmetic.cost && !ownedCosmetics.includes(cosmetic.emojiId)) {
       setUserCoins(userCoins - cosmetic.cost);
-      setOwnedCosmetics([...ownedCosmetics, cosmetic.emoji]);
+      setOwnedCosmetics([...ownedCosmetics, cosmetic.emojiId]);
       toast.success(`${cosmetic.name} adquirido!`);
-    } else if (ownedCosmetics.includes(cosmetic.emoji)) {
+    } else if (ownedCosmetics.includes(cosmetic.emojiId)) {
       toast.info("Você já possui este cosmético!");
     } else {
       toast.error("Moedas insuficientes!");
@@ -77,7 +77,7 @@ const Dashboard = () => {
       <main className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            <span className="mystic-glow">⚔️ Home</span>
+            <span className="mystic-glow">{getEmoji('knight')} Home</span>
           </h2>
           <p className="text-muted-foreground text-xs">Continue sua jornada épica de estudos</p>
         </div>
@@ -205,8 +205,6 @@ const Dashboard = () => {
                 </div>
               </Card>
             </div>
-
-            <KnightCompanion />
           </div>
 
           {/* Avatar & Cosmetics (1/3) */}
@@ -216,7 +214,7 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
               <h3 className="text-sm font-bold mb-3 text-foreground relative">👤 Seu Avatar</h3>
               <div className="relative w-24 h-24 mx-auto mb-3 text-6xl flex items-center justify-center border-4 border-primary/40 pixel-corners bg-primary/10 hover:scale-110 transition-transform">
-                {equippedCosmetic}
+                {getEmoji(equippedCosmetic)}
               </div>
               <p className="text-xs text-muted-foreground mb-2 relative">Aventureiro Nível {user.level}</p>
               <Badge variant="secondary" className="text-xs relative">
@@ -230,19 +228,19 @@ const Dashboard = () => {
               <h3 className="text-sm font-bold mb-3 text-foreground">🎨 Meus Cosméticos</h3>
               <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
                 {cosmetics
-                  .filter(c => ownedCosmetics.includes(c.emoji))
+                  .filter(c => ownedCosmetics.includes(c.emojiId))
                   .map((cosmetic) => (
                     <button
                       key={cosmetic.id}
-                      onClick={() => handleEquipCosmetic(cosmetic.emoji)}
+                      onClick={() => handleEquipCosmetic(cosmetic.emojiId)}
                       className={`p-3 text-3xl border-2 pixel-corners transition-all hover:scale-110 ${
-                        equippedCosmetic === cosmetic.emoji 
+                        equippedCosmetic === cosmetic.emojiId 
                           ? 'border-primary bg-primary/20 animate-pulse' 
                           : 'border-border/30 hover:border-primary/50'
                       }`}
                       title={cosmetic.name}
                     >
-                      {cosmetic.emoji}
+                      {getEmoji(cosmetic.emojiId)}
                     </button>
                   ))}
               </div>
@@ -257,7 +255,7 @@ const Dashboard = () => {
               <h3 className="text-sm font-bold mb-3 text-secondary relative">🏪 Loja de Cosméticos</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto relative">
                 {cosmetics.map((cosmetic) => {
-                  const isOwned = ownedCosmetics.includes(cosmetic.emoji);
+                  const isOwned = ownedCosmetics.includes(cosmetic.emojiId);
                   return (
                     <div 
                       key={cosmetic.id}
@@ -268,7 +266,7 @@ const Dashboard = () => {
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">{cosmetic.emoji}</span>
+                        <span className="text-2xl">{getEmoji(cosmetic.emojiId)}</span>
                         <div>
                           <p className="text-xs font-bold text-foreground">{cosmetic.name}</p>
                           <p className="text-xs text-muted-foreground">
@@ -292,7 +290,7 @@ const Dashboard = () => {
                           size="sm" 
                           variant="outline"
                           className="text-xs h-7"
-                          onClick={() => handleEquipCosmetic(cosmetic.emoji)}
+                          onClick={() => handleEquipCosmetic(cosmetic.emojiId)}
                         >
                           Equipar
                         </Button>

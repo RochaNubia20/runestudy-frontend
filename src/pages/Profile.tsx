@@ -9,10 +9,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { User, Mail, Shield, Calendar, Trophy, Target, Coins, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { getEmoji, avatarEmojiIds } from "@/constants/emojiMap";
 
 const Profile = () => {
   const navigate = useNavigate();
-  const [selectedAvatar, setSelectedAvatar] = useState("👤");
+  const [selectedAvatar, setSelectedAvatar] = useState("user");
 
   const user = {
     nickname: "Aventureiro",
@@ -35,7 +36,7 @@ const Profile = () => {
     { id: 6, name: "ᚲ Kenaz", description: "1000 XP total", unlocked: true, rune: "ᚲ" },
   ];
 
-  const avatarOptions = ["👤", "🧙", "⚔️", "🛡️", "👑", "🏹", "🗡️", "⚡", "🔮", "🌟", "🦁", "🐉"];
+  const avatarOptions = avatarEmojiIds;
 
   const handleLogout = () => {
     toast.success("Até logo!");
@@ -49,7 +50,7 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            <span className="mystic-glow">👤 Perfil</span>
+            <span className="mystic-glow">{getEmoji('user')} Perfil</span>
           </h2>
           <p className="text-muted-foreground text-xs">Gerencie sua conta</p>
         </div>
@@ -60,7 +61,7 @@ const Profile = () => {
             <Card className="p-4 bg-card border-2 border-primary/30 text-center pixel-corners">
               <Avatar className="w-20 h-20 mx-auto mb-3 border-4 border-primary/50 pixel-corners">
                 <AvatarFallback className="text-3xl bg-primary/20 pixel-corners">
-                  {selectedAvatar}
+                  {getEmoji(selectedAvatar)}
                 </AvatarFallback>
               </Avatar>
               <h3 className="text-lg font-bold mb-1 text-foreground">{user.nickname}</h3>
@@ -83,20 +84,20 @@ const Profile = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-4 gap-3">
-                    {avatarOptions.map((avatar) => (
+                    {avatarOptions.map((avatarId) => (
                       <button
-                        key={avatar}
+                        key={avatarId}
                         onClick={() => {
-                          setSelectedAvatar(avatar);
+                          setSelectedAvatar(avatarId);
                           toast.success("Avatar alterado!");
                         }}
                         className={`p-3 text-3xl border-2 pixel-corners transition-all ${
-                          selectedAvatar === avatar 
+                          selectedAvatar === avatarId 
                             ? 'border-primary bg-primary/20' 
                             : 'border-border/30 hover:border-primary/50'
                         }`}
                       >
-                        {avatar}
+                        {getEmoji(avatarId)}
                       </button>
                     ))}
                   </div>

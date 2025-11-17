@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Coins, Gift, Plus, ShoppingBag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { getEmoji } from "@/constants/emojiMap";
 
 interface Reward {
   id: number;
@@ -57,7 +58,7 @@ const Rewards = () => {
       setRewards(rewards.map(reward => 
         reward.id === rewardId ? { ...reward, claimed: true } : reward
       ));
-      toast.success(`Recompensa resgatada! -${cost} moedas 🎉`);
+      toast.success(`Recompensa resgatada! -${cost} moedas ${getEmoji('celebration')}`);
     } else {
       toast.error("Moedas insuficientes!");
     }
@@ -94,7 +95,7 @@ const Rewards = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              <span className="mystic-glow">🎁 Recompensas</span>
+              <span className="mystic-glow">{getEmoji('celebration')} Recompensas</span>
             </h2>
             <p className="text-muted-foreground text-xs">Troque moedas por prêmios</p>
           </div>

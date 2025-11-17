@@ -3,6 +3,8 @@ import { RuneLogo } from "@/components/RuneLogo";
 import { FeatureCard } from "@/components/FeatureCard";
 import { AuthForm } from "@/components/AuthForm";
 import { Sparkles, Trophy, Target, Coins, TrendingUp, Award, Scroll, Swords, Shield } from "lucide-react";
+import { getEmoji } from "@/constants/emojiMap";
+
 import heroKnight from "@/assets/hero-knight.png";
 import heroBg from "@/assets/hero-bg.png";
 const Index = () => {
@@ -32,7 +34,7 @@ const Index = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
             <div className="inline-block px-4 py-2 border-2 border-primary/40 rounded-lg bg-primary/10 mb-4 pixel-corners">
-              <span className="text-sm mystic-glow">⚔️ Sua Saga Acadêmica Começa Aqui</span>
+              <span className="text-sm mystic-glow">{getEmoji('knight')} Sua Saga Acadêmica Começa Aqui</span>
             </div>
 
             <h1 className="text-4xl md:text-6xl font-bold leading-tight">
@@ -42,7 +44,7 @@ const Index = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-              🎮 Gamifique sua rotina de estudos, ganhe XP, evolua suas habilidades e desbloqueie recompensas enquanto conquista seus objetivos acadêmicos como um verdadeiro herói RPG!
+              {getEmoji('gaming')} Gamifique sua rotina de estudos, ganhe XP, evolua suas habilidades e desbloqueie recompensas enquanto conquista seus objetivos acadêmicos como um verdadeiro herói RPG!
             </p>
 
             <div className="flex flex-wrap gap-4">
@@ -107,7 +109,7 @@ const Index = () => {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8 mb-16">
-        <FeatureCard icon={Scroll} title="⚔️ Crie Missões" description="Transforme suas tarefas em missões épicas e ganhe recompensas enquanto progride nos seus estudos como um verdadeiro aventureiro!" />
+        <FeatureCard icon={Scroll} title={`${getEmoji('knight')} Crie Missões`} description="Transforme suas tarefas em missões épicas e ganhe recompensas enquanto progride nos seus estudos como um verdadeiro aventureiro!" />
         <FeatureCard icon={TrendingUp} title="📈 Ganhe XP" description="Acumule pontos de experiência por cada missão completa e suba de nível, tornando-se um mestre em suas áreas de estudo!" />
         <FeatureCard icon={Swords} title="🛡️ Evolua Habilidades" description="Melhore suas habilidades especiais conforme avança na sua jornada acadêmica e desbloqueie novos poderes!" />
       </div>

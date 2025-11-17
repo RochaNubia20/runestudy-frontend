@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Lock, Unlock, Edit, Trash2, CheckCircle, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { CelebrationAnimation } from "@/components/CelebrationAnimation";
+import { getEmoji } from "@/constants/emojiMap";
 
 interface Task {
   id: number;
@@ -125,7 +126,7 @@ const Tasks = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              <span className="mystic-glow">📚 Tarefas</span>
+              <span className="mystic-glow">{getEmoji('book')} Tarefas</span>
             </h2>
             <p className="text-muted-foreground text-xs">Organize estudos e ganhe XP</p>
           </div>
@@ -226,7 +227,7 @@ const Tasks = () => {
                     </div>
                     <p className="text-muted-foreground text-xs mb-2">{task.description}</p>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-primary font-bold">🎯 {task.skill}</span>
+                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skill}</span>
                       <span className="text-secondary font-bold">⚡ +{task.xp} XP</span>
                     </div>
                   </div>
@@ -287,7 +288,7 @@ const Tasks = () => {
                     </div>
                     <p className="text-muted-foreground text-xs mb-2">{task.description}</p>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-primary font-bold">🎯 {task.skill}</span>
+                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skill}</span>
                       <span className="text-secondary font-bold">⚡ +{task.xp} XP</span>
                     </div>
                   </div>

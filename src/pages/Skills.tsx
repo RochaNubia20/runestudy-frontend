@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Target, TrendingUp, Award, Book, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { getEmoji, commonEmojiIds } from "@/constants/emojiMap";
 
 interface Skill {
   id: number;
@@ -27,7 +28,7 @@ const Skills = () => {
       points: 450,
       level: 8,
       xpToNextLevel: 500,
-      icon: "📐",
+      icon: "math",
     },
     {
       id: 2,
@@ -36,7 +37,7 @@ const Skills = () => {
       points: 320,
       level: 6,
       xpToNextLevel: 400,
-      icon: "📚",
+      icon: "book",
     },
     {
       id: 3,
@@ -45,13 +46,13 @@ const Skills = () => {
       points: 280,
       level: 5,
       xpToNextLevel: 350,
-      icon: "⚛️",
+      icon: "react",
     },
   ]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [newSkillName, setNewSkillName] = useState("");
-  const [newSkillIcon, setNewSkillIcon] = useState("🎯");
+  const [newSkillIcon, setNewSkillIcon] = useState("quest");
 
   const handleCreateSkill = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,19 +73,19 @@ const Skills = () => {
 
     setSkills([...skills, skill]);
     setNewSkillName("");
-    setNewSkillIcon("🎯");
+    setNewSkillIcon("quest");
     setIsDialogOpen(false);
     toast.success("Habilidade criada com sucesso!");
   };
 
-  const commonIcons = ["📐", "📚", "⚛️", "🧪", "🧬", "🌍", "💻", "🎨", "🎵", "⚽", "🏃", "📝"];
+  // Remover: const commonIcons = [...] - será substituído por commonEmojiIds
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            <span className="mystic-glow">🎯 Habilidades</span>
+            <span className="mystic-glow">{getEmoji('quest')} Habilidades</span>
           </h2>
           <p className="text-muted-foreground text-xs">Evolua em cada área</p>
         </div>
@@ -143,7 +144,7 @@ const Skills = () => {
                 className="p-4 bg-card border-2 border-border/50 hover:border-primary/50 transition-all pixel-corners"
               >
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="text-3xl">{skill.icon}</div>
+                  <div className="text-3xl">{getEmoji(skill.icon)}</div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="text-sm font-bold text-foreground">{skill.name}</h3>
@@ -207,18 +208,18 @@ const Skills = () => {
               <div>
                 <label className="text-xs font-bold text-foreground mb-1 block">Ícone</label>
                 <div className="grid grid-cols-6 gap-2 mb-2">
-                  {commonIcons.map((icon) => (
+                  {commonEmojiIds.map((emojiId) => (
                     <button
-                      key={icon}
+                      key={emojiId}
                       type="button"
-                      onClick={() => setNewSkillIcon(icon)}
+                      onClick={() => setNewSkillIcon(emojiId)}
                       className={`p-2 text-2xl border-2 pixel-corners transition-all ${
-                        newSkillIcon === icon 
+                        newSkillIcon === emojiId 
                           ? 'border-primary bg-primary/20' 
                           : 'border-border/30 hover:border-primary/50'
                       }`}
                     >
-                      {icon}
+                      {getEmoji(emojiId)}
                     </button>
                   ))}
                 </div>

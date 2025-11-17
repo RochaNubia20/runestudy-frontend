@@ -10,8 +10,9 @@ export const AuthForm = () => {
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [identifier, setIdentifier] = useState("");
+  const [name, setname] = useState("");
+  const [nickname, setnickname] = useState("");
   const [email, setEmail] = useState("");
-  const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
@@ -30,7 +31,7 @@ export const AuthForm = () => {
       return;
     }
 
-    if (!nickname || !email || !password || !confirmPassword) {
+    if (!name || !nickname || !email || !password || !confirmPassword) {
       toast.error("Preencha todos os campos para cadastro.");
       return;
     }
@@ -61,7 +62,7 @@ export const AuthForm = () => {
             </label>
             <Input
               type="text"
-              placeholder="seu@email.com ou seu_nickname"
+              placeholder="seu@email.com ou seu_usuario"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               className="bg-input border-border focus:border-primary"
@@ -73,13 +74,28 @@ export const AuthForm = () => {
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <User className="w-4 h-4" />
+                Nome
+              </label>
+              <Input
+                type="text"
+                placeholder="Nome"
+                value={name}
+                onChange={(e) => setname(e.target.value)}
+                className="bg-input border-border focus:border-primary"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground flex items-center gap-2">
+                <User className="w-4 h-4" />
                 Nickname
               </label>
               <Input
                 type="text"
                 placeholder="seu_nickname"
                 value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
+                onChange={(e) => setnickname(e.target.value)}
                 className="bg-input border-border focus:border-primary"
                 required
               />
