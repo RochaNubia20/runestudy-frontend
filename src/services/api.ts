@@ -1,13 +1,13 @@
-import { getToken } from "@/utils/auth";
+import { getToken, isAuthenticated } from "@/utils/auth";
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: "/api",
+  baseURL: "http://localhost:8080/api"
 });
 
 api.interceptors.request.use((config) => {
   const token = getToken();
-  if (token) {
+  if (token && isAuthenticated()) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
