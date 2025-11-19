@@ -5,9 +5,11 @@ export interface UserResponse {
   email: string
   currentAvatar: string
   level: number
-  createdAt: string
+  xpToNextLevel: number
+  levelPercentage: number
   totalXP: number
   totalCoins: number
+  createdAt: string
 };
 
 export interface UserCreateRequest {

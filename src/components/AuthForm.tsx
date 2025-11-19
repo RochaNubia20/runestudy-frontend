@@ -2,12 +2,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+<<<<<<< HEAD
 import { UserCreateRequest } from "@/types/user";
 import { toast } from "sonner";
 import { Mail, Lock, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "@/services/userService";
 import { UseAuth } from "@/contexts/AuthContext";
+=======
+import { UserCreateRequest, UserResponse } from "@/types/user";
+import { toast } from "sonner";
+import { Mail, Lock, User } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LoginRequest, LoginResponse } from "@/types/auth";
+import { api } from "@/services/api";
+import { getAuthenticatedUser } from "@/services/userService";
+>>>>>>> 82ace9b15879b4b935a4fefc3f9422218b269516
 
 export const AuthForm = () => {
   const { login } = UseAuth();
@@ -33,6 +43,7 @@ export const AuthForm = () => {
         return;
       }
 
+<<<<<<< HEAD
       if (password !== confirmPassword) {
         toast.error("As senhas não coincidem.");
         return;
@@ -68,11 +79,76 @@ export const AuthForm = () => {
       }
       toast.success("Login realizado com sucesso!");
       setTimeout(() => navigate("/dashboard"), 1000);
+=======
+      await login({ username, password });
+      return;
+    }
+>>>>>>> 82ace9b15879b4b935a4fefc3f9422218b269516
 
     } catch (error) {
       toast.error("Não foi possível realizar login.")
       console.error(error);
     }
+<<<<<<< HEAD
+=======
+
+    if (password !== confirmPassword) {
+      toast.error("As senhas não coincidem.");
+      return;
+    }
+
+    const newUser: UserCreateRequest = {
+      name,
+      nickname,
+      email,
+      password
+    };
+
+    try {
+      const response = await api.post('/users/register', newUser);
+
+      if (response.status === 200) {
+        toast.success("Conta criada com sucesso!");
+        await login({ username: email, password });
+      }
+    } catch (error: any) {
+      if (error?.response?.status === 409) {
+        toast.error("Email ou nickname já existem.");
+      } else {
+        toast.error("Erro ao criar conta. Tente novamente.");
+      }
+      console.error(error);
+    }
+  };
+
+  const login = async ({ username, password }: LoginRequest) => {
+    try {
+      const loginResponse = await api.post<LoginResponse>('/auth/login', {
+        username: username,
+        password: password
+      });
+
+      const jwtToken = loginResponse.data.jwtToken;
+      localStorage.setItem("token", jwtToken);
+      toast.success("Login realizado com sucesso!");
+
+      saveAuthenticatedUser();
+      setTimeout(() => navigate("/dashboard"), 1000);
+    } catch (error) {
+      toast.error("Erro ao realizar login. Verifique suas credenciais.");
+      console.error(error);
+    }
+  };
+
+  const saveAuthenticatedUser = () => {
+    getAuthenticatedUser().then(response => {
+      const user: UserResponse = response.data;
+      console.log(user);
+      localStorage.setItem("authenticatedUser", JSON.stringify(user));
+    }).catch(error => {
+      console.error("Erro ao obter usuário autenticado:", error);
+    });
+>>>>>>> 82ace9b15879b4b935a4fefc3f9422218b269516
   };
 
   return (

@@ -1,76 +1,64 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import cosmeticsImage from "@/assets/cosmetics-items.png";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Trophy, Target, Coins, Zap, Book, Award, ShoppingBag, Sparkles, User } from "lucide-react";
+import { Trophy, Target, Coins, Zap, Book } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { getEmoji, avatarEmojiIds } from "@/constants/emojiMap";
+import { getEmoji } from "@/constants/emojiMap";
+import { buyAvatar } from "@/services/storeService";
+import { AvatarResponse } from "@/types/avatar";
+import { selectAvatar } from "@/services/userService";
+import { UseAuth } from "@/contexts/AuthContext";
+import { UseTasks } from "@/contexts/TaskContext";
+import { UseSkills } from "@/contexts/SkillContext";
+import { UseAvatars } from "@/contexts/AvatarContext";
 
 const Dashboard = () => {
-  const [selectedAvatar, setSelectedAvatar] = useState("wizard");
-  const [userCoins, setUserCoins] = useState(250);
-  const [ownedCosmetics, setOwnedCosmetics] = useState<string[]>(["wizard"]);
-  const [equippedCosmetic, setEquippedCosmetic] = useState("wizard");
+  const { user, token, loading, refreshUser } = UseAuth();
+  const { tasks, refreshTasks } = UseTasks();
+  const { skills, refreshSkills } = UseSkills();
+  const { avatars, refreshAvatars } = UseAvatars();
 
-  const cosmetics = [
-    { id: "wizard", emojiId: "wizard", name: "Mago Sábio", cost: 0, owned: true },
-    { id: "crown", emojiId: "crown", name: "Coroa Real", cost: 100, owned: false },
-    { id: "knight", emojiId: "knight", name: "Cavaleiro", cost: 150, owned: false },
-    { id: "shield", emojiId: "shield", name: "Escudeiro", cost: 150, owned: false },
-    { id: "archer", emojiId: "bow", name: "Arqueiro", cost: 200, owned: false },
-    { id: "sword", emojiId: "sword", name: "Espadachim", cost: 200, owned: false },
-    { id: "magic", emojiId: "crystal", name: "Místico", cost: 250, owned: false },
-    { id: "thunder", emojiId: "lightning", name: "Trovão", cost: 300, owned: false },
-    { id: "star", emojiId: "star", name: "Estrelar", cost: 350, owned: false },
-    { id: "dragon", emojiId: "dragon", name: "Domador de Dragões", cost: 500, owned: false },
-  ];
+  useEffect(() => {
+    refreshUser();
+    refreshTasks();
+    refreshSkills();
+    refreshAvatars();
+  }, [token]);
 
-  const handleBuyCosmetic = (cosmetic: typeof cosmetics[0]) => {
-    if (userCoins >= cosmetic.cost && !ownedCosmetics.includes(cosmetic.emojiId)) {
-      setUserCoins(userCoins - cosmetic.cost);
-      setOwnedCosmetics([...ownedCosmetics, cosmetic.emojiId]);
-      toast.success(`${cosmetic.name} adquirido!`);
-    } else if (ownedCosmetics.includes(cosmetic.emojiId)) {
+
+  const handleBuyCosmetic = (avatar: typeof avatars[0]) => {
+    if (avatar.owned) {
       toast.info("Você já possui este cosmético!");
-    } else {
+      return;
+    }
+    if (user.totalCoins < avatar.price) {
       toast.error("Moedas insuficientes!");
+      return;
+    }
+    try {
+      user.totalCoins -= avatar.price;
+      avatar.owned = true;
+
+      buyAvatar(avatar.id);
+      toast.success(`${avatar.name} adquirido!`);
+    } catch (error) {
+      toast.error("Ocorreu um erro ao comprar avatar.")
+      console.log(error);
     }
   };
 
-  const handleEquipCosmetic = (emoji: string) => {
-    if (ownedCosmetics.includes(emoji)) {
-      setEquippedCosmetic(emoji);
+  const handleEquipCosmetic = (avatar: AvatarResponse) => {
+    if (user.currentAvatar === avatar.name) {
+      user.currentAvatar = avatar.name;
+
+      selectAvatar(avatar.name)
       toast.success("Cosmético equipado!");
     }
   };
-
-  // Mock data - será substituído por dados reais da API
-  const user = {
-    nickname: "Aventureiro",
-    level: 5,
-    xp: 2340,
-    xpToNextLevel: 3000,
-    coins: 150,
-  };
-
-  const recentTasks = [
-    { id: 1, title: "Estudar Cálculo I", xp: 50, completed: true },
-    { id: 2, title: "Revisar História", xp: 30, completed: true },
-    { id: 3, title: "Exercícios de Física", xp: 40, completed: false },
-  ];
-
-  const topSkills = [
-    { name: "Matemática", points: 450, level: 8 },
-    { name: "História", points: 320, level: 6 },
-    { name: "Física", points: 280, level: 5 },
-  ];
-
-  const xpPercentage = (user.xp / user.xpToNextLevel) * 100;
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,9 +88,9 @@ const Dashboard = () => {
                 <div className="mt-3">
                   <div className="flex justify-between text-xs mb-2">
                     <span className="text-muted-foreground">XP</span>
-                    <span className="text-foreground font-bold">{user.xp} / {user.xpToNextLevel}</span>
+                    <span className="text-foreground font-bold">{user.totalXP} / {user.xpToNextLevel}</span>
                   </div>
-                  <Progress value={xpPercentage} className="h-2" />
+                  <Progress value={user.levelPercentage} className="h-2" />
                 </div>
               </Card>
 
@@ -114,11 +102,11 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Total XP</p>
-                    <p className="text-2xl font-bold text-foreground">{user.xp}</p>
+                    <p className="text-2xl font-bold text-foreground">{user.totalXP}</p>
                   </div>
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  <span className="text-secondary font-bold">-{user.xpToNextLevel - user.xp} XP</span> próx. nível
+                  <span className="text-secondary font-bold">-{user.xpToNextLevel - user.totalXP} XP</span> próx. nível
                 </p>
               </Card>
 
@@ -130,7 +118,7 @@ const Dashboard = () => {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Moedas</p>
-                    <p className="text-2xl font-bold text-foreground">{user.coins}</p>
+                    <p className="text-2xl font-bold text-foreground">{user.totalCoins}</p>
                   </div>
                 </div>
                 <Link to="/rewards">
@@ -155,24 +143,27 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  {recentTasks.slice(0, 3).map((task) => (
+                  {tasks.slice(0, 3).map((task) => {
+                  const taskCompleted = task.status === 'completed';
+
+                  return (
                     <div
                       key={task.id}
                       className="flex items-center justify-between p-2 bg-background/50 border border-border/30 pixel-corners"
                     >
                       <div className="flex items-center gap-2">
                         <div className={`w-4 h-4 border-2 flex items-center justify-center pixel-corners ${
-                          task.completed ? 'bg-primary border-primary' : 'border-border'
+                          taskCompleted ? 'bg-primary border-primary' : 'border-border'
                         }`}>
-                          {task.completed && <span className="text-primary-foreground text-[8px]">✓</span>}
+                          {taskCompleted && <span className="text-primary-foreground text-[8px]">✓</span>}
                         </div>
-                        <span className={`text-xs ${task.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                        <span className={`text-xs ${taskCompleted ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                           {task.title.length > 20 ? task.title.substring(0, 20) + '...' : task.title}
                         </span>
                       </div>
-                      <span className="text-xs font-bold text-secondary">+{task.xp}</span>
+                      <span className="text-xs font-bold text-secondary">+{task.taskXP}</span>
                     </div>
-                  ))}
+                  )})}
                 </div>
                 <Link to="/tasks">
                   <Button variant="mystic" className="w-full mt-3 text-xs" size="sm">
@@ -193,13 +184,13 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  {topSkills.slice(0, 3).map((skill, index) => (
+                  {skills.slice(0, 3).map((skill, index) => (
                     <div key={index} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-foreground">{skill.name}</span>
-                        <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
+                        {/*<span className="text-xs text-muted-foreground">Lv {skill.level}</span>*/}
                       </div>
-                      <Progress value={(skill.points / 500) * 100} className="h-1" />
+                      {/*<Progress value={(skill.points / 500) * 100} className="h-1" />*/}
                     </div>
                   ))}
                 </div>
@@ -214,12 +205,12 @@ const Dashboard = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
               <h3 className="text-sm font-bold mb-3 text-foreground relative">👤 Seu Avatar</h3>
               <div className="relative w-24 h-24 mx-auto mb-3 text-6xl flex items-center justify-center border-4 border-primary/40 pixel-corners bg-primary/10 hover:scale-110 transition-transform">
-                {getEmoji(equippedCosmetic)}
+                {user.currentAvatar}
               </div>
               <p className="text-xs text-muted-foreground mb-2 relative">Aventureiro Nível {user.level}</p>
               <Badge variant="secondary" className="text-xs relative">
                 <Coins className="w-3 h-3 mr-1" />
-                {userCoins} Moedas
+                {user.totalCoins} Moedas
               </Badge>
             </Card>
 
@@ -227,20 +218,20 @@ const Dashboard = () => {
             <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
               <h3 className="text-sm font-bold mb-3 text-foreground">🎨 Meus Cosméticos</h3>
               <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                {cosmetics
-                  .filter(c => ownedCosmetics.includes(c.emojiId))
-                  .map((cosmetic) => (
+                {avatars
+                  .filter(avatar => avatar.owned)
+                  .map((avatar) => (
                     <button
-                      key={cosmetic.id}
-                      onClick={() => handleEquipCosmetic(cosmetic.emojiId)}
+                      key={avatar.id}
+                      onClick={() => handleEquipCosmetic(avatar)}
                       className={`p-3 text-3xl border-2 pixel-corners transition-all hover:scale-110 ${
-                        equippedCosmetic === cosmetic.emojiId 
-                          ? 'border-primary bg-primary/20 animate-pulse' 
+                        user.currentAvatar === avatar.name
+                          ? 'border-primary bg-primary/20 animate-pulse'
                           : 'border-border/30 hover:border-primary/50'
                       }`}
-                      title={cosmetic.name}
+                      title={avatar.name}
                     >
-                      {getEmoji(cosmetic.emojiId)}
+                      {avatar.icon}
                     </button>
                   ))}
               </div>
@@ -248,49 +239,48 @@ const Dashboard = () => {
 
             {/* Cosmetic Store */}
             <Card className="relative p-4 bg-card border-2 border-secondary/30 pixel-corners overflow-hidden">
-              <div 
+              <div
                 className="absolute top-0 right-0 w-20 h-20 opacity-10 bg-contain bg-no-repeat"
                 style={{ backgroundImage: `url(${cosmeticsImage})` }}
               />
               <h3 className="text-sm font-bold mb-3 text-secondary relative">🏪 Loja de Cosméticos</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto relative">
-                {cosmetics.map((cosmetic) => {
-                  const isOwned = ownedCosmetics.includes(cosmetic.emojiId);
+                {avatars.map((avatar) => {
                   return (
-                    <div 
-                      key={cosmetic.id}
+                    <div
+                      key={avatar.id}
                       className={`flex items-center justify-between p-2 pixel-corners border transition-all ${
-                        isOwned 
-                          ? 'bg-primary/10 border-primary/30' 
+                        avatar.owned
+                          ? 'bg-primary/10 border-primary/30'
                           : 'bg-background/50 border-border/30 hover:border-secondary/50'
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className="text-2xl">{getEmoji(cosmetic.emojiId)}</span>
+                        <span className="text-2xl">{avatar.icon}</span>
                         <div>
-                          <p className="text-xs font-bold text-foreground">{cosmetic.name}</p>
+                          <p className="text-xs font-bold text-foreground">{avatar.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {isOwned ? '✅ Adquirido' : `${cosmetic.cost} moedas`}
+                            {avatar.owned ? '✅ Adquirido' : `${avatar.price} moedas`}
                           </p>
                         </div>
                       </div>
-                      {!isOwned && (
-                        <Button 
-                          size="sm" 
-                          variant={userCoins >= cosmetic.cost ? "mystic" : "outline"}
+                      {!avatar.owned && (
+                        <Button
+                          size="sm"
+                          variant={user.totalCoins >= avatar.price ? "mystic" : "outline"}
                           className="text-xs h-7"
-                          onClick={() => handleBuyCosmetic(cosmetic)}
-                          disabled={userCoins < cosmetic.cost}
+                          onClick={() => handleBuyCosmetic(avatar)}
+                          disabled={user.totalCoins < avatar.price}
                         >
                           Comprar
                         </Button>
                       )}
-                      {isOwned && (
-                        <Button 
-                          size="sm" 
+                      {avatar.owned && (
+                        <Button
+                          size="sm"
                           variant="outline"
                           className="text-xs h-7"
-                          onClick={() => handleEquipCosmetic(cosmetic.emojiId)}
+                          onClick={() => handleEquipCosmetic(avatar)}
                         >
                           Equipar
                         </Button>
