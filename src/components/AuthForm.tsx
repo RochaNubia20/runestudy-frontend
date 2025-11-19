@@ -2,15 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { UserCreateRequest, UserResponse } from "@/types/user";
+import { UserCreateRequest } from "@/types/user";
 import { toast } from "sonner";
 import { Mail, Lock, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { LoginRequest, LoginResponse } from "@/types/auth";
-import { api } from "@/services/api";
-import { getAuthenticatedUser, registerUser } from "@/services/userService";
+import { registerUser } from "@/services/userService";
+import { UseAuth } from "@/contexts/AuthContext";
 
 export const AuthForm = () => {
+  const { login } = UseAuth();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState("");
@@ -27,72 +27,52 @@ export const AuthForm = () => {
         toast.error("Preencha o email/nickname e a senha.");
         return;
       }
-
-      await login({ username, password });
-      return;
-    }
-
-    if (!name || !nickname || !email || !password || !confirmPassword) {
-      toast.error("Preencha todos os campos para cadastro.");
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      toast.error("As senhas não coincidem.");
-      return;
-    }
-
-    const newUser: UserCreateRequest = {
-      name,
-      nickname,
-      email,
-      password
-    };
-
-    try {
-      const response = await registerUser(newUser);
-
-      if (response.status === 200) {
-        toast.success("Conta criada com sucesso!");
-        await login({ username: email, password });
+    } else {
+      if (!name || !nickname || !email || !password || !confirmPassword) {
+        toast.error("Preencha todos os campos para cadastro.");
+        return;
       }
-    } catch (error: any) {
-      if (error?.response?.status === 409) {
-        toast.error("Email ou nickname já existem.");
+
+      if (password !== confirmPassword) {
+        toast.error("As senhas não coincidem.");
+        return;
+      }
+
+      const newUser: UserCreateRequest = {
+        name,
+        nickname,
+        email,
+        password
+      };
+
+      try {
+        const response = await registerUser(newUser);
+
+        if (response.status === 200) {
+          toast.success("Conta criada com sucesso!");
+        }
+      } catch (error: any) {
+        if (error?.response?.status === 409) {
+          toast.error("Email ou nickname já existem.");
+        } else {
+          toast.error("Erro ao criar conta. Tente novamente.");
+        }
+        console.error(error);
+      }
+    }
+    try {
+      if (isLogin) {
+        await login({username, password });
       } else {
-        toast.error("Erro ao criar conta. Tente novamente.");
+        await login({username: email, password });
       }
-      console.error(error);
-    }
-  };
-
-  const login = async ({ username, password }: LoginRequest) => {
-    try {
-      const loginResponse = await api.post<LoginResponse>('/auth/login', {
-        username: username,
-        password: password
-      });
-
-      const jwtToken = loginResponse.data.jwtToken;
-      localStorage.setItem("token", jwtToken);
       toast.success("Login realizado com sucesso!");
-
-      saveAuthenticatedUser();
       setTimeout(() => navigate("/dashboard"), 1000);
+
     } catch (error) {
-      toast.error("Erro ao realizar login. Verifique suas credenciais.");
+      toast.error("Não foi possível realizar login.")
       console.error(error);
     }
-  };
-
-  const saveAuthenticatedUser = () => {
-    getAuthenticatedUser().then(response => {
-      const user: UserResponse = response.data;
-      console.log(user);
-      localStorage.setItem("authenticatedUser", JSON.stringify(user));
-    }).catch(error => {
-      console.error("Erro ao obter usuário autenticado:", error);
-    });
   };
 
   return (
