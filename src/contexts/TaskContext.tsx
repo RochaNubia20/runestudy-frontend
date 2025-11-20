@@ -19,12 +19,11 @@ export const TaskProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const refreshTasks = async () => {
-    // debugger;
     try {
-      const res = await getAllTasksByUser(user.id);
-      setTasks(res.data);
-    } catch (err) {
-      console.error("Erro ao carregar tarefas", err);
+      const response = await getAllTasksByUser(user.id);
+      setTasks(response.data);
+    } catch (error) {
+      console.error(error?.response?.data);
     }
   };
 

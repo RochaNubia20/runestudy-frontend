@@ -19,12 +19,11 @@ export const SkillProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const refreshSkills = async () => {
-    // debugger;
     try {
-      const res = await getAllSkillsByUser(user.id);
-      setSkills(res.data);
-    } catch (err) {
-      console.error("Erro ao carregar skills", err);
+      const response = await getAllSkillsByUser(user.id);
+      setSkills(response.data);
+    } catch (error) {
+      console.error(error?.response?.data);
     }
   };
 

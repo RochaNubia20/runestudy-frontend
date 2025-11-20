@@ -18,10 +18,10 @@ export const AvatarProvider = ({ children }: { children: React.ReactNode }) => {
 
   const refreshAvatars = async () => {
     try {
-      const res = await getAllAvatars();
-      setAvatars(res.data);
-    } catch (err) {
-      console.error("Erro ao carregar avatares", err);
+      const response = await getAllAvatars();
+      setAvatars(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar avatares", error);
     }
   };
 
