@@ -22,8 +22,8 @@ const Dashboard = () => {
   const { skills, refreshSkills } = UseSkills();
   const { avatars, refreshAvatars } = UseAvatars();
 
-  const [userAvatar, setUserAvatar] = useState(user.currentAvatarIcon);
-  const [ownedAvatars, setOwnedAvatars] = useState<AvatarResponse[]>(avatars.filter(a => a.owned));
+  const [userAvatar, setUserAvatar] = useState<string>(user.currentAvatarIcon);
+  const [ownedAvatars, setOwnedAvatars] = useState<AvatarResponse[]>(() => avatars.filter(a => a.owned));
 
   useEffect(() => {
     refreshUser();
@@ -32,8 +32,12 @@ const Dashboard = () => {
     refreshAvatars();
   }, [token]);
 
+  useEffect(() => {
+    setOwnedAvatars(avatars.filter(a => a.owned));
+  }, [avatars]);
 
-  const handleBuyCosmetic = (avatar: typeof avatars[0]) => {
+
+  const handleBuyCosmetic = async (avatar: typeof avatars[0]) => {
     if (avatar.owned) {
       toast.info("Você já possui este cosmético!");
       return;
@@ -42,16 +46,16 @@ const Dashboard = () => {
       toast.error("Moedas insuficientes!");
       return;
     }
-    try {
-      user.totalCoins -= avatar.price;
-      avatar.owned = true;
-      setOwnedAvatars([...ownedAvatars, avatar]);
 
-      buyAvatar(avatar.id);
+    try {
+      await buyAvatar(avatar.id);
+      await refreshUser();
+      await refreshAvatars();
+
       toast.success(`${avatar.title} adquirido!`);
     } catch (error) {
-      toast.error("Ocorreu um erro ao comprar avatar.")
-      console.log(error);
+      toast.error("Ocorreu um erro ao comprar avatar.");
+      console.error(error);
     }
   };
 
