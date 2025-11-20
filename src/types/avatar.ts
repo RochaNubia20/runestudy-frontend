@@ -1,6 +1,7 @@
 export interface AvatarResponse {
   id: number
-  name: string
+  title: string
+  iconName: string
   icon: string
   price: number
   owned: boolean

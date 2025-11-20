@@ -3,7 +3,8 @@ export interface UserResponse {
   name: string
   nickname: string,
   email: string
-  currentAvatar: string
+  currentAvatarIcon: string
+  currentAvatarName: string
   level: number
   xpToNextLevel: number
   levelPercentage: number
