@@ -2,18 +2,6 @@ export const getToken = () => {
   return localStorage.getItem("token");
 };
 
-export const getAuthenticatedUserFromStorage = () => {
-  const userJson = localStorage.getItem("authenticatedUser");
-  if (userJson) {
-    return JSON.parse(userJson);
-  }
-  return null;
-}
-
-export const logout = () => {
-  localStorage.removeItem("token");
-};
-
 export const isAuthenticated = () => {
   const token = getToken();
   if (!token) return false;
