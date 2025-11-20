@@ -6,5 +6,5 @@ export const getAllAvatars = () => {
 }
 
 export const buyAvatar = (avatarId: number) => {
-  return api.patch('/store/avatars/' + avatarId + '/buy');
+  return api.patch('store/buy/avatar/' + avatarId);
 }
