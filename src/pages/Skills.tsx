@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Target, TrendingUp, Award, Book, Plus } from "lucide-react";
 import { toast } from "sonner";
-import { getEmoji, commonEmojiIds } from "@/constants/emojiMap";
+import { getEmoji } from "@/constants/emojiMap";
 
 interface Skill {
   id: number;
@@ -137,10 +137,10 @@ const Skills = () => {
         <div className="grid md:grid-cols-2 gap-4 mb-4">
           {skills.map((skill) => {
             const progressPercentage = (skill.points / skill.xpToNextLevel) * 100;
-            
+
             return (
-              <Card 
-                key={skill.id} 
+              <Card
+                key={skill.id}
                 className="p-4 bg-card border-2 border-border/50 hover:border-primary/50 transition-all pixel-corners"
               >
                 <div className="flex items-start gap-3 mb-3">
@@ -198,8 +198,8 @@ const Skills = () => {
             <form className="space-y-3" onSubmit={handleCreateSkill}>
               <div>
                 <label className="text-xs font-bold text-foreground mb-1 block">Nome</label>
-                <Input 
-                  placeholder="Ex: Programação" 
+                <Input
+                  placeholder="Ex: Programação"
                   className="bg-background text-xs"
                   value={newSkillName}
                   onChange={(e) => setNewSkillName(e.target.value)}
@@ -208,23 +208,23 @@ const Skills = () => {
               <div>
                 <label className="text-xs font-bold text-foreground mb-1 block">Ícone</label>
                 <div className="grid grid-cols-6 gap-2 mb-2">
-                  {commonEmojiIds.map((emojiId) => (
+                  {/*commonEmojiIds.map((emojiId) => (
                     <button
                       key={emojiId}
                       type="button"
                       onClick={() => setNewSkillIcon(emojiId)}
                       className={`p-2 text-2xl border-2 pixel-corners transition-all ${
-                        newSkillIcon === emojiId 
-                          ? 'border-primary bg-primary/20' 
+                        newSkillIcon === emojiId
+                          ? 'border-primary bg-primary/20'
                           : 'border-border/30 hover:border-primary/50'
                       }`}
                     >
                       {getEmoji(emojiId)}
                     </button>
-                  ))}
+                  ))*/}
                 </div>
-                <Input 
-                  placeholder="Ou digite emoji" 
+                <Input
+                  placeholder="Ou digite emoji"
                   className="bg-background text-xs text-center"
                   value={newSkillIcon}
                   onChange={(e) => setNewSkillIcon(e.target.value)}

@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { User, Mail, Shield, Calendar, Trophy, Target, Coins, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { getEmoji, avatarEmojiIds } from "@/constants/emojiMap";
+import { getEmoji } from "@/constants/emojiMap";
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -35,8 +35,6 @@ const Profile = () => {
     { id: 5, name: "ᚱ Raidho", description: "Todas habilidades Lv5", unlocked: false, rune: "ᚱ" },
     { id: 6, name: "ᚲ Kenaz", description: "1000 XP total", unlocked: true, rune: "ᚲ" },
   ];
-
-  const avatarOptions = avatarEmojiIds;
 
   const handleLogout = () => {
     toast.success("Até logo!");
@@ -70,7 +68,7 @@ const Profile = () => {
                 <Trophy className="w-2 h-2 mr-1" />
                 Nível {user.level}
               </Badge>
-              
+
               <Dialog>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="w-full text-xs" size="sm">
@@ -84,7 +82,7 @@ const Profile = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-4 gap-3">
-                    {avatarOptions.map((avatarId) => (
+                    {/*avatarOptions.map((avatarId) => (
                       <button
                         key={avatarId}
                         onClick={() => {
@@ -92,14 +90,14 @@ const Profile = () => {
                           toast.success("Avatar alterado!");
                         }}
                         className={`p-3 text-3xl border-2 pixel-corners transition-all ${
-                          selectedAvatar === avatarId 
-                            ? 'border-primary bg-primary/20' 
+                          selectedAvatar === avatarId
+                            ? 'border-primary bg-primary/20'
                             : 'border-border/30 hover:border-primary/50'
                         }`}
                       >
                         {getEmoji(avatarId)}
                       </button>
-                    ))}
+                    ))*/}
                   </div>
                 </DialogContent>
               </Dialog>
@@ -186,7 +184,7 @@ const Profile = () => {
 
             {/* Rune Achievements */}
             <Card className="relative p-4 bg-card border-2 border-border/50 pixel-corners overflow-hidden">
-              <div 
+              <div
                 className="absolute inset-0 opacity-5 bg-cover bg-center"
                 style={{ backgroundImage: `url(${runeStones})` }}
               />
@@ -195,18 +193,18 @@ const Profile = () => {
               </h4>
               <div className="grid md:grid-cols-2 gap-3 relative">
                 {achievements.map((achievement) => (
-                  <div 
+                  <div
                     key={achievement.id}
                     className={`relative p-3 border-2 pixel-corners transition-all hover:scale-105 ${
-                      achievement.unlocked 
-                        ? 'bg-gradient-to-br from-primary/20 to-secondary/10 border-primary/60 shadow-[0_0_15px_hsl(var(--primary)/0.4)]' 
+                      achievement.unlocked
+                        ? 'bg-gradient-to-br from-primary/20 to-secondary/10 border-primary/60 shadow-[0_0_15px_hsl(var(--primary)/0.4)]'
                         : 'bg-background/50 border-border/30 opacity-50'
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`relative w-14 h-14 flex items-center justify-center text-3xl pixel-corners border-2 transition-all ${
-                        achievement.unlocked 
-                          ? 'bg-primary/30 border-primary/70 animate-pulse-glow shadow-[0_0_20px_hsl(var(--primary)/0.6)]' 
+                        achievement.unlocked
+                          ? 'bg-primary/30 border-primary/70 animate-pulse-glow shadow-[0_0_20px_hsl(var(--primary)/0.6)]'
                           : 'bg-muted border-muted-foreground/30'
                       }`}>
                         {achievement.unlocked ? (
