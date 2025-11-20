@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import cosmeticsImage from "@/assets/cosmetics-items.png";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -17,10 +17,13 @@ import { UseSkills } from "@/contexts/SkillContext";
 import { UseAvatars } from "@/contexts/AvatarContext";
 
 const Dashboard = () => {
-  const { user, token, loading, refreshUser } = UseAuth();
+  const { user, token, refreshUser } = UseAuth();
   const { tasks, refreshTasks } = UseTasks();
   const { skills, refreshSkills } = UseSkills();
   const { avatars, refreshAvatars } = UseAvatars();
+
+  const [userAvatar, setUserAvatar] = useState(user.currentAvatarIcon);
+  const [ownedAvatars, setOwnedAvatars] = useState<AvatarResponse[]>(avatars.filter(a => a.owned));
 
   useEffect(() => {
     refreshUser();
@@ -42,9 +45,10 @@ const Dashboard = () => {
     try {
       user.totalCoins -= avatar.price;
       avatar.owned = true;
+      setOwnedAvatars([...ownedAvatars, avatar]);
 
       buyAvatar(avatar.id);
-      toast.success(`${avatar.name} adquirido!`);
+      toast.success(`${avatar.title} adquirido!`);
     } catch (error) {
       toast.error("Ocorreu um erro ao comprar avatar.")
       console.log(error);
@@ -52,10 +56,12 @@ const Dashboard = () => {
   };
 
   const handleEquipCosmetic = (avatar: AvatarResponse) => {
-    if (user.currentAvatar === avatar.name) {
-      user.currentAvatar = avatar.name;
+    if (user.currentAvatarName !== avatar.iconName) {
+      user.currentAvatarName = avatar.iconName;
+      user.currentAvatarIcon = avatar.icon;
+      setUserAvatar(user.currentAvatarIcon);
 
-      selectAvatar(avatar.name)
+      selectAvatar(avatar.iconName);
       toast.success("Cosmético equipado!");
     }
   };
@@ -94,7 +100,6 @@ const Dashboard = () => {
                 </div>
               </Card>
 
-              {/* XP Card */}
               <Card className="p-4 bg-card border-2 border-secondary/30 hover:border-secondary/50 transition-all pixel-corners">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-secondary/20 flex items-center justify-center pixel-corners">
@@ -110,7 +115,6 @@ const Dashboard = () => {
                 </p>
               </Card>
 
-              {/* Coins Card */}
               <Card className="p-4 bg-card border-2 border-primary/30 hover:border-primary/50 transition-all pixel-corners">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-primary/20 flex items-center justify-center pixel-corners">
@@ -129,9 +133,7 @@ const Dashboard = () => {
               </Card>
             </div>
 
-            {/* Recent Tasks & Skills */}
             <div className="grid md:grid-cols-2 gap-4">
-              {/* Recent Tasks */}
               <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-bold flex items-center gap-2">
@@ -172,7 +174,6 @@ const Dashboard = () => {
                 </Link>
               </Card>
 
-              {/* Top Skills */}
               <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-sm font-bold flex items-center gap-2">
@@ -188,9 +189,9 @@ const Dashboard = () => {
                     <div key={index} className="space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-foreground">{skill.name}</span>
-                        {/*<span className="text-xs text-muted-foreground">Lv {skill.level}</span>*/}
+                        <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
                       </div>
-                      {/*<Progress value={(skill.points / 500) * 100} className="h-1" />*/}
+                      <Progress value={skill.levelPercentage} className="h-1" />
                     </div>
                   ))}
                 </div>
@@ -198,14 +199,12 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Avatar & Cosmetics (1/3) */}
           <div className="space-y-4">
-            {/* Avatar Display */}
             <Card className="p-4 bg-card border-2 border-primary/30 text-center pixel-corners relative overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5"></div>
               <h3 className="text-sm font-bold mb-3 text-foreground relative">👤 Seu Avatar</h3>
               <div className="relative w-24 h-24 mx-auto mb-3 text-6xl flex items-center justify-center border-4 border-primary/40 pixel-corners bg-primary/10 hover:scale-110 transition-transform">
-                {user.currentAvatar}
+                {user.currentAvatarIcon}
               </div>
               <p className="text-xs text-muted-foreground mb-2 relative">Aventureiro Nível {user.level}</p>
               <Badge variant="secondary" className="text-xs relative">
@@ -214,22 +213,20 @@ const Dashboard = () => {
               </Badge>
             </Card>
 
-            {/* Cosmetics */}
             <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
               <h3 className="text-sm font-bold mb-3 text-foreground">🎨 Meus Cosméticos</h3>
               <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                {avatars
-                  .filter(avatar => avatar.owned)
+                {ownedAvatars
                   .map((avatar) => (
                     <button
                       key={avatar.id}
                       onClick={() => handleEquipCosmetic(avatar)}
                       className={`p-3 text-3xl border-2 pixel-corners transition-all hover:scale-110 ${
-                        user.currentAvatar === avatar.name
+                        user.currentAvatarName === avatar.iconName
                           ? 'border-primary bg-primary/20 animate-pulse'
                           : 'border-border/30 hover:border-primary/50'
                       }`}
-                      title={avatar.name}
+                      title={avatar.title}
                     >
                       {avatar.icon}
                     </button>
@@ -237,7 +234,6 @@ const Dashboard = () => {
               </div>
             </Card>
 
-            {/* Cosmetic Store */}
             <Card className="relative p-4 bg-card border-2 border-secondary/30 pixel-corners overflow-hidden">
               <div
                 className="absolute top-0 right-0 w-20 h-20 opacity-10 bg-contain bg-no-repeat"
@@ -258,7 +254,7 @@ const Dashboard = () => {
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">{avatar.icon}</span>
                         <div>
-                          <p className="text-xs font-bold text-foreground">{avatar.name}</p>
+                          <p className="text-xs font-bold text-foreground">{avatar.title}</p>
                           <p className="text-xs text-muted-foreground">
                             {avatar.owned ? '✅ Adquirido' : `${avatar.price} moedas`}
                           </p>
@@ -281,6 +277,7 @@ const Dashboard = () => {
                           variant="outline"
                           className="text-xs h-7"
                           onClick={() => handleEquipCosmetic(avatar)}
+                          disabled={avatar.iconName === user.currentAvatarName}
                         >
                           Equipar
                         </Button>
