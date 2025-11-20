@@ -48,7 +48,7 @@ export const AuthForm = () => {
       try {
         const response = await registerUser(newUser);
 
-        if (response.status === 200) {
+        if (response.status === 201) {
           toast.success("Conta criada com sucesso!");
         }
       } catch (error: any) {
