@@ -149,33 +149,32 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  {tasks.slice(0, 3).map((task) => {
-                  const taskCompleted = task.status === 'completed';
+                  {tasks.sort((a, b) => {
+                    if (a.status === b.status) return 0;
+                    if (a.status === 'completed') return 1;
+                    return -1;
+                  }).slice(0, 5).map((task) => {
+                    const taskCompleted = task.status === 'completed';
 
-                  return (
-                    <div
-                      key={task.id}
-                      className="flex items-center justify-between p-2 bg-background/50 border border-border/30 pixel-corners"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 border-2 flex items-center justify-center pixel-corners ${
-                          taskCompleted ? 'bg-primary border-primary' : 'border-border'
-                        }`}>
-                          {taskCompleted && <span className="text-primary-foreground text-[8px]">✓</span>}
+                    return (
+                      <div
+                        key={task.id}
+                        className="flex items-center justify-between p-2 bg-background/50 border border-border/30 pixel-corners"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className={`w-4 h-4 border-2 flex items-center justify-center pixel-corners ${taskCompleted ? 'bg-primary border-primary' : 'border-border'
+                            }`}>
+                            {taskCompleted && <span className="text-primary-foreground text-[8px]">✓</span>}
+                          </div>
+                          <span className={`text-xs ${taskCompleted ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                            {task.title.length > 20 ? task.title.substring(0, 20) + '...' : task.title}
+                          </span>
                         </div>
-                        <span className={`text-xs ${taskCompleted ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                          {task.title.length > 20 ? task.title.substring(0, 20) + '...' : task.title}
-                        </span>
+                        <span className="text-xs font-bold text-secondary">+{task.taskXP}</span>
                       </div>
-                      <span className="text-xs font-bold text-secondary">+{task.taskXP}</span>
-                    </div>
-                  )})}
+                    )
+                  })}
                 </div>
-                <Link to="/tasks">
-                  <Button variant="mystic" className="w-full mt-3 text-xs" size="sm">
-                    Nova Tarefa
-                  </Button>
-                </Link>
               </Card>
 
               <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
@@ -189,15 +188,17 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  {skills.slice(0, 3).map((skill, index) => (
-                    <div key={index} className="space-y-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold text-foreground">{skill.name}</span>
-                        <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
-                      </div>
-                      <Progress value={skill.levelPercentage} className="h-1" />
-                    </div>
-                  ))}
+                  {// order by levelPercentage descending
+                    skills.sort((a, b) => b.levelPercentage - a.levelPercentage)
+                      .slice(0, 5).map((skill, index) => (
+                        <div key={index} className="space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-foreground">{skill.name}</span>
+                            <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
+                          </div>
+                          <Progress value={skill.levelPercentage} className="h-1" />
+                        </div>
+                      ))}
                 </div>
               </Card>
             </div>
@@ -225,11 +226,10 @@ const Dashboard = () => {
                     <button
                       key={avatar.id}
                       onClick={() => handleEquipCosmetic(avatar)}
-                      className={`p-3 text-3xl border-2 pixel-corners transition-all hover:scale-110 ${
-                        user.currentAvatarName === avatar.iconName
-                          ? 'border-primary bg-primary/20 animate-pulse'
-                          : 'border-border/30 hover:border-primary/50'
-                      }`}
+                      className={`p-3 text-3xl border-2 pixel-corners transition-all hover:scale-110 ${user.currentAvatarName === avatar.iconName
+                        ? 'border-primary bg-primary/20 animate-pulse'
+                        : 'border-border/30 hover:border-primary/50'
+                        }`}
                       title={avatar.title}
                     >
                       {avatar.icon}
@@ -249,11 +249,10 @@ const Dashboard = () => {
                   return (
                     <div
                       key={avatar.id}
-                      className={`flex items-center justify-between p-2 pixel-corners border transition-all ${
-                        avatar.owned
-                          ? 'bg-primary/10 border-primary/30'
-                          : 'bg-background/50 border-border/30 hover:border-secondary/50'
-                      }`}
+                      className={`flex items-center justify-between p-2 pixel-corners border transition-all ${avatar.owned
+                        ? 'bg-primary/10 border-primary/30'
+                        : 'bg-background/50 border-border/30 hover:border-secondary/50'
+                        }`}
                     >
                       <div className="flex items-center gap-2">
                         <span className="text-2xl">{avatar.icon}</span>
