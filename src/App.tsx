@@ -30,7 +30,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route element={<AppLayout />}>
-              <Route path="/dashboard" element={ loading ? (<div>Carregando...</div>) : user ?
+              <Route path="/dashboard" element={loading ? (<div>Carregando...</div>) : user ?
                 (<AvatarProvider>
                   <SkillProvider>
                     <TaskProvider>
@@ -39,7 +39,13 @@ const App = () => {
                   </SkillProvider>
                 </AvatarProvider>) : <Navigate to="/" />
               } />
-              <Route path="/tasks" element={<Tasks />} />
+              <Route path="/tasks" element={loading ? (<div>Carregando...</div>) : user ?
+                (<SkillProvider>
+                  <TaskProvider>
+                    <Tasks />
+                  </TaskProvider>
+                </SkillProvider>) : <Navigate to="/" />
+              } />
               <Route path="/skills" element={<Skills />} />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
