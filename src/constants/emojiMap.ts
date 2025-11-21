@@ -46,6 +46,21 @@ export const emojiMap: Record<string, string> = {
   achievement: "🏅",
 };
 
+export const skillIcons = [
+  "math",
+  "book",
+  "react",
+  "test",
+  "science",
+  "world",
+  "code",
+  "art",
+  "music",
+  "soccer",
+  "run",
+  "notes",
+];
+
 // Função auxiliar para obter emoji pelo key
 export const getEmoji = (emojiKey: string): string => {
   return emojiMap[emojiKey] || "❓";
