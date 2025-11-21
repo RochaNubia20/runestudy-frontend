@@ -5,6 +5,12 @@ export interface SkillResponse {
   level: number
   xpToNextLevel: number
   levelPercentage: number
+  progressXP: number
   totalXP: number
   totalTasks: number
+}
+
+export interface SkillRequest {
+  name: string
+  icon: string
 }
