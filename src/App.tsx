@@ -46,7 +46,13 @@ const App = () => {
                   </TaskProvider>
                 </SkillProvider>) : <Navigate to="/" />
               } />
-              <Route path="/skills" element={<Skills />} />
+              <Route path="/skills" element={loading ? (<div>Carregando...</div>) : user ?
+                (<SkillProvider>
+                  <TaskProvider>
+                    <Skills />
+                  </TaskProvider>
+                </SkillProvider>) : <Navigate to="/" />
+              } />
               <Route path="/rewards" element={<Rewards />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
