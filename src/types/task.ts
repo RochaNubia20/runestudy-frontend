@@ -6,4 +6,12 @@ export interface TaskResponse {
   block: boolean
   taskXP: number
   taskCoins: number
+  skillName: string
+}
+
+export interface TaskCreateRequest {
+  title: string
+  description: string
+  difficulty: string
+  skillName: string
 }

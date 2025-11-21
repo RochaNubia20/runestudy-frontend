@@ -1,6 +1,22 @@
-import { TaskResponse } from "@/types/task";
+import { TaskCreateRequest, TaskResponse } from "@/types/task";
 import { api } from "./api";
 
 export const getAllTasksByUser = (userId: number) => {
   return api.get<TaskResponse[]>('/tasks/user/' + userId);
+}
+
+export const registerTask = (request: TaskCreateRequest) => {
+  return api.post('/tasks/register', request)
+}
+
+export const completeTask = (taskId: number) => {
+  return api.patch('/tasks/' + taskId + '/complete');
+}
+
+export const blockTask = (taskId: number) => {
+  return api.patch('/tasks/' + taskId + '/block');
+}
+
+export const deleteTask = (taskId: number) => {
+  return api.delete('/tasks/' + taskId);
 }
