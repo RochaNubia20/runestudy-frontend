@@ -210,7 +210,7 @@ const Dashboard = () => {
               <div className="relative w-24 h-24 mx-auto mb-3 text-6xl flex items-center justify-center border-4 border-primary/40 pixel-corners bg-primary/10 hover:scale-110 transition-transform">
                 {user.currentAvatarIcon}
               </div>
-              <p className="text-xs text-muted-foreground mb-2 relative">Aventureiro Nível {user.level}</p>
+              <p className="text-xs text-muted-foreground mb-2 relative">{user.nickname} - Nível {user.level}</p>
               <Badge variant="secondary" className="text-xs relative">
                 <Coins className="w-3 h-3 mr-1" />
                 {user.totalCoins} Moedas
@@ -220,8 +220,7 @@ const Dashboard = () => {
             <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
               <h3 className="text-sm font-bold mb-3 text-foreground">🎨 Meus Cosméticos</h3>
               <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto">
-                {ownedAvatars
-                  .map((avatar) => (
+                {ownedAvatars.map((avatar) => (
                     <button
                       key={avatar.id}
                       onClick={() => handleEquipCosmetic(avatar)}
@@ -244,7 +243,12 @@ const Dashboard = () => {
               />
               <h3 className="text-sm font-bold mb-3 text-secondary relative">🏪 Loja de Cosméticos</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto relative">
-                {avatars.map((avatar) => {
+                { // avatars adquiridos são os primeiros filtrados
+                avatars.sort((a, b) => {
+                  if (a.owned === b.owned) return 0;
+                  if (a.owned) return -1;
+                  return 1;
+                }).map((avatar) => {
                   return (
                     <div
                       key={avatar.id}
