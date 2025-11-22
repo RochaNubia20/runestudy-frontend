@@ -8,6 +8,7 @@ export interface UserResponse {
   level: number
   xpToNextLevel: number
   levelPercentage: number
+  progressXP: number
   totalXP: number
   totalCoins: number
   createdAt: string
