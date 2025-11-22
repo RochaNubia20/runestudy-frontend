@@ -11,7 +11,7 @@ export interface UserResponse {
   progressXP: number
   totalXP: number
   totalCoins: number
-  createdAt: string
+  createdAt: Date
 };
 
 export interface UserCreateRequest {
@@ -19,4 +19,14 @@ export interface UserCreateRequest {
   nickname: string
   password: string
   email: string
+}
+
+export interface UserUpdateRequest {
+  name: string
+  nickname: string
+  email: string
+}
+
+export interface ChangePasswordRequest {
+  newPassword: string
 }
