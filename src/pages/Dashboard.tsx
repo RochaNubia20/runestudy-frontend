@@ -98,7 +98,7 @@ const Dashboard = () => {
                 <div className="mt-3">
                   <div className="flex justify-between text-xs mb-2">
                     <span className="text-muted-foreground">XP</span>
-                    <span className="text-foreground font-bold">{user.totalXP} / {user.xpToNextLevel}</span>
+                    <span className="text-foreground font-bold">{user.progressXP} / {user.xpToNextLevel}</span>
                   </div>
                   <Progress value={user.levelPercentage} className="h-2" />
                 </div>
@@ -115,7 +115,7 @@ const Dashboard = () => {
                   </div>
                 </div>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  <span className="text-secondary font-bold">-{user.xpToNextLevel - user.totalXP} XP</span> próx. nível
+                  <span className="text-secondary font-bold">-{user.xpToNextLevel - user.progressXP} XP</span> próx. nível
                 </p>
               </Card>
 
@@ -188,17 +188,16 @@ const Dashboard = () => {
                   </Link>
                 </div>
                 <div className="space-y-2">
-                  {// order by levelPercentage descending
-                    skills.sort((a, b) => b.levelPercentage - a.levelPercentage)
-                      .slice(0, 5).map((skill, index) => (
-                        <div key={index} className="space-y-1">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-foreground">{skill.name}</span>
-                            <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
-                          </div>
-                          <Progress value={skill.levelPercentage} className="h-1" />
+                  {skills.sort((a, b) => b.totalXP - a.totalXP)
+                    .slice(0, 5).map((skill, index) => (
+                      <div key={index} className="space-y-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-foreground">{skill.name}</span>
+                          <span className="text-xs text-muted-foreground">Lv {skill.level}</span>
                         </div>
-                      ))}
+                        <Progress value={skill.levelPercentage} className="h-1" />
+                      </div>
+                    ))}
                 </div>
               </Card>
             </div>
