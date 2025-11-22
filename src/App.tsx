@@ -16,6 +16,7 @@ import { SkillProvider } from "./contexts/SkillContext";
 import { TaskProvider } from "./contexts/TaskContext";
 import { UseAuth } from "./contexts/AuthContext";
 import { RewardProvider } from "./contexts/RewardContext";
+import { getToken } from "./utils/auth";
 
 const queryClient = new QueryClient();
 
@@ -29,7 +30,7 @@ const App = () => {
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<Index />} />
+            <Route path="/" element={loading ? (<div>Carregando...</div>) : (getToken() ? <Navigate to="/dashboard" /> : <Index />)} />
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={loading ? (<div>Carregando...</div>) : user ?
                 (<AvatarProvider>
@@ -59,7 +60,15 @@ const App = () => {
                   <Rewards />
                 </RewardProvider>) : <Navigate to="/" />
               } />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={loading ? (<div>Carregando...</div>) : user ?
+                (<AvatarProvider>
+                  <SkillProvider>
+                    <TaskProvider>
+                      <Profile />
+                    </TaskProvider>
+                  </SkillProvider>
+                </AvatarProvider>) : <Navigate to="/" />
+              } />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
