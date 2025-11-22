@@ -15,6 +15,7 @@ import { AvatarProvider } from "./contexts/AvatarContext";
 import { SkillProvider } from "./contexts/SkillContext";
 import { TaskProvider } from "./contexts/TaskContext";
 import { UseAuth } from "./contexts/AuthContext";
+import { RewardProvider } from "./contexts/RewardContext";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,11 @@ const App = () => {
                   </TaskProvider>
                 </SkillProvider>) : <Navigate to="/" />
               } />
-              <Route path="/rewards" element={<Rewards />} />
+              <Route path="/rewards" element={loading ? (<div>Carregando...</div>) : user ?
+                (<RewardProvider>
+                  <Rewards />
+                </RewardProvider>) : <Navigate to="/" />
+              } />
               <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="*" element={<NotFound />} />
