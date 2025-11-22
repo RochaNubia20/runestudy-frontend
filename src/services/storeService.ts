@@ -8,3 +8,7 @@ export const getAllAvatars = () => {
 export const buyAvatar = (avatarId: number) => {
   return api.patch('store/buy/avatar/' + avatarId);
 }
+
+export const buyReward = (rewardId: number) => {
+  return api.patch('store/buy/reward/' + rewardId);
+}
