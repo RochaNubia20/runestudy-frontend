@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import runeStones from "@/assets/rune-stones.png";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,23 +10,44 @@ import { User, Mail, Shield, Calendar, Trophy, Target, Coins, LogOut } from "luc
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { getEmoji } from "@/constants/emojiMap";
+import { UseAuth } from "@/contexts/AuthContext";
+import { UseAvatars } from "@/contexts/AvatarContext";
+import { AvatarResponse } from "@/types/avatar";
+import { changePassword, selectAvatar, updateUser } from "@/services/userService";
+import { UseTasks } from "@/contexts/TaskContext";
+import { UseSkills } from "@/contexts/SkillContext";
+import { TaskResponse } from "@/types/task";
+import { ChangePasswordRequest, UserUpdateRequest } from "@/types/user";
 
 const Profile = () => {
+  const { user, refreshUser, logout } = UseAuth();
+  const { tasks } = UseTasks();
+  const { skills } = UseSkills();
+  const { avatars } = UseAvatars();
   const navigate = useNavigate();
-  const [selectedAvatar, setSelectedAvatar] = useState("user");
 
-  const user = {
-    nickname: "Aventureiro",
-    email: "aventureiro@runestudy.com",
-    level: 5,
-    totalXP: 2340,
-    coins: 150,
-    joinedDate: "Jan 2025",
-    tasksCompleted: 45,
-    skillsActive: 6,
-  };
+  const [name, setName] = useState(user.name);
+  const [nickname, setNickname] = useState(user.nickname);
+  const [newEmail, setNewEmail] = useState(user.email);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [ownedAvatars, setOwnedAvatars] = useState<AvatarResponse[]>(() => avatars.filter(a => a.owned));
+  const [pendingTasks, setPendingTasks] = useState<TaskResponse[]>(() => tasks.filter(t => t.status !== "completed"));
+  const [userAvatar, setUserAvatar] = useState<string>(user.currentAvatarIcon);
 
-  // Runas élficas como conquistas
+  useEffect(() => {
+    refreshUser();
+  }, [user]);
+
+  useEffect(() => {
+    setOwnedAvatars(avatars.filter(a => a.owned));
+  }, [avatars]);
+
+  useEffect(() => {
+    setPendingTasks(tasks.filter(t => t.status !== "completed"));
+  }, [tasks]);
+
+  // Runas élficas como conquistas (placeholder)
   const achievements = [
     { id: 1, name: "ᚠ Fehu", description: "Primeira Tarefa", unlocked: true, rune: "ᚠ" },
     { id: 2, name: "ᚢ Uruz", description: "7 dias seguidos", unlocked: true, rune: "ᚢ" },
@@ -36,11 +57,78 @@ const Profile = () => {
     { id: 6, name: "ᚲ Kenaz", description: "1000 XP total", unlocked: true, rune: "ᚲ" },
   ];
 
+  const formatDate = (date: Date): string => {
+    const dateString = new Date(date).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    return dateString;
+  }
+
+  const handleUpdateUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (newPassword) {
+      if (newPassword !== confirmPassword) {
+        toast.error("As senhas não coincidem.");
+        return;
+      }
+      const newPasswordRequest: ChangePasswordRequest = {newPassword};
+      try {
+        const response = await changePassword(user.id, newPasswordRequest);
+        if (response.status === 204) {
+          toast.success("A senha foi alterada.");
+        }
+      } catch (error: any) {
+        if (error?.response?.status === 400) {
+          toast.error("A senha atual é idêntica a existente.");
+        } else {
+          toast.error("Erro ao alterar senha. Tente novamente.");
+        }
+        console.error(error);
+      }
+    }
+
+    if ((name == user.name && nickname == user.nickname && newEmail == user.email) && !newPassword) {
+      toast.info("As informações não foram alteradas.");
+    } else {
+      const userData: UserUpdateRequest = {
+        name,
+        nickname,
+        email: newEmail
+      };
+      try {
+        const response = await updateUser(user.id, userData);
+        if (response.status === 204) {
+          toast.success("Salvo!");
+        }
+      } catch (error: any) {
+        if (error?.response?.status === 409) {
+          toast.error("Email ou nickname já existem.");
+        } else {
+          toast.error("Erro ao atualizar informações. Tente novamente.");
+        }
+        console.error(error);
+      }
+    }
+  }
+
+  const handleEquipCosmetic = (avatar: AvatarResponse) => {
+    if (user.currentAvatarName !== avatar.iconName) {
+      user.currentAvatarName = avatar.iconName;
+      user.currentAvatarIcon = avatar.icon;
+      setUserAvatar(user.currentAvatarIcon);
+
+      selectAvatar(avatar.iconName);
+      toast.success("Cosmético equipado!");
+    }
+  };
+
   const handleLogout = () => {
-    toast.success("Até logo!");
-    setTimeout(() => {
-      navigate("/");
-    }, 1000);
+    toast.info(user.nickname + " saiu.");
+    logout();
+    navigate("/");
   };
 
   return (
@@ -48,7 +136,7 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto">
         <div className="mb-6">
           <h2 className="text-2xl md:text-3xl font-bold mb-2">
-            <span className="mystic-glow">{getEmoji('user')} Perfil</span>
+            <span className="mystic-glow">{getEmoji('person')} Perfil</span>
           </h2>
           <p className="text-muted-foreground text-xs">Gerencie sua conta</p>
         </div>
@@ -58,8 +146,8 @@ const Profile = () => {
             {/* Avatar Card */}
             <Card className="p-4 bg-card border-2 border-primary/30 text-center pixel-corners">
               <Avatar className="w-20 h-20 mx-auto mb-3 border-4 border-primary/50 pixel-corners">
-                <AvatarFallback className="text-3xl bg-primary/20 pixel-corners">
-                  {getEmoji(selectedAvatar)}
+                <AvatarFallback className="text-5xl bg-primary/20 pixel-corners">
+                  {userAvatar}
                 </AvatarFallback>
               </Avatar>
               <h3 className="text-lg font-bold mb-1 text-foreground">{user.nickname}</h3>
@@ -82,22 +170,18 @@ const Profile = () => {
                     </DialogTitle>
                   </DialogHeader>
                   <div className="grid grid-cols-4 gap-3">
-                    {/*avatarOptions.map((avatarId) => (
+                    {ownedAvatars.map((avatar) => (
                       <button
-                        key={avatarId}
-                        onClick={() => {
-                          setSelectedAvatar(avatarId);
-                          toast.success("Avatar alterado!");
-                        }}
-                        className={`p-3 text-3xl border-2 pixel-corners transition-all ${
-                          selectedAvatar === avatarId
-                            ? 'border-primary bg-primary/20'
-                            : 'border-border/30 hover:border-primary/50'
-                        }`}
+                        key={avatar.iconName}
+                        onClick={() => handleEquipCosmetic(avatar)}
+                        className={`p-3 text-3xl border-2 pixel-corners transition-all ${userAvatar === avatar.iconName
+                          ? 'border-primary bg-primary/20'
+                          : 'border-border/30 hover:border-primary/50'
+                          }`}
                       >
-                        {getEmoji(avatarId)}
+                        {avatar.icon}
                       </button>
-                    ))*/}
+                    ))}
                   </div>
                 </DialogContent>
               </Dialog>
@@ -119,28 +203,28 @@ const Profile = () => {
                     <Coins className="w-3 h-3 text-primary" />
                     <span className="text-muted-foreground">Moedas</span>
                   </div>
-                  <span className="font-bold text-foreground">{user.coins}</span>
+                  <span className="font-bold text-foreground">{user.totalCoins}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Target className="w-3 h-3 text-secondary" />
                     <span className="text-muted-foreground">Tarefas</span>
                   </div>
-                  <span className="font-bold text-foreground">{user.tasksCompleted}</span>
+                  <span className="font-bold text-foreground">{pendingTasks.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Shield className="w-3 h-3 text-secondary" />
                     <span className="text-muted-foreground">Skills</span>
                   </div>
-                  <span className="font-bold text-foreground">{user.skillsActive}</span>
+                  <span className="font-bold text-foreground">{skills.length}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Calendar className="w-3 h-3 text-primary" />
                     <span className="text-muted-foreground">Membro</span>
                   </div>
-                  <span className="font-bold text-foreground">{user.joinedDate}</span>
+                  <span className="font-bold text-foreground">{formatDate(user.createdAt)}</span>
                 </div>
               </div>
             </Card>
@@ -151,32 +235,70 @@ const Profile = () => {
             {/* Account Settings */}
             <Card className="p-4 bg-card border-2 border-border/50 pixel-corners">
               <h4 className="text-sm font-bold mb-3 text-foreground">Configurações</h4>
-              <form className="space-y-3">
+              <form onSubmit={handleUpdateUser} className="space-y-3" autoComplete="off">
+                <div>
+                  <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
+                    <User className="w-3 h-3" />
+                    Nome
+                  </label>
+                  <Input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="bg-background text-xs"
+                  />
+                </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
                     <User className="w-3 h-3" />
                     Usuário
                   </label>
-                  <Input defaultValue={user.nickname} className="bg-background text-xs" />
+                  <Input
+                    type="text"
+                    value={nickname}
+                    onChange={(e) => setNickname(e.target.value)}
+                    className="bg-background text-xs"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
                     <Mail className="w-3 h-3" />
                     Email
                   </label>
-                  <Input defaultValue={user.email} type="email" className="bg-background text-xs" />
+                  <Input
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    autoComplete="off"
+                    className="bg-background text-xs"
+                  />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
                     <Shield className="w-3 h-3" />
                     Nova Senha
                   </label>
-                  <Input type="password" placeholder="••••••••" className="bg-background text-xs" />
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    autoComplete="new-password"
+                    className="bg-background text-xs" />
                 </div>
-                <Button variant="mystic" className="w-full text-xs" size="sm" onClick={(e) => {
-                  e.preventDefault();
-                  toast.success("Salvo!");
-                }}>
+                <div>
+                  <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
+                    <Shield className="w-3 h-3" />
+                    Confirmar Nova Senha
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="bg-background text-xs" />
+                </div>
+                <Button type="submit" variant="mystic" className="w-full text-xs" size="sm">
                   Salvar
                 </Button>
               </form>
@@ -195,18 +317,16 @@ const Profile = () => {
                 {achievements.map((achievement) => (
                   <div
                     key={achievement.id}
-                    className={`relative p-3 border-2 pixel-corners transition-all hover:scale-105 ${
-                      achievement.unlocked
-                        ? 'bg-gradient-to-br from-primary/20 to-secondary/10 border-primary/60 shadow-[0_0_15px_hsl(var(--primary)/0.4)]'
-                        : 'bg-background/50 border-border/30 opacity-50'
-                    }`}
+                    className={`relative p-3 border-2 pixel-corners transition-all hover:scale-105 ${achievement.unlocked
+                      ? 'bg-gradient-to-br from-primary/20 to-secondary/10 border-primary/60 shadow-[0_0_15px_hsl(var(--primary)/0.4)]'
+                      : 'bg-background/50 border-border/30 opacity-50'
+                      }`}
                   >
                     <div className="flex items-start gap-3">
-                      <div className={`relative w-14 h-14 flex items-center justify-center text-3xl pixel-corners border-2 transition-all ${
-                        achievement.unlocked
-                          ? 'bg-primary/30 border-primary/70 animate-pulse-glow shadow-[0_0_20px_hsl(var(--primary)/0.6)]'
-                          : 'bg-muted border-muted-foreground/30'
-                      }`}>
+                      <div className={`relative w-14 h-14 flex items-center justify-center text-3xl pixel-corners border-2 transition-all ${achievement.unlocked
+                        ? 'bg-primary/30 border-primary/70 animate-pulse-glow shadow-[0_0_20px_hsl(var(--primary)/0.6)]'
+                        : 'bg-muted border-muted-foreground/30'
+                        }`}>
                         {achievement.unlocked ? (
                           <span className="mystic-glow drop-shadow-[0_0_8px_hsl(var(--primary))]">
                             {achievement.rune}
@@ -222,9 +342,8 @@ const Profile = () => {
                         )}
                       </div>
                       <div className="flex-1">
-                        <h5 className={`font-bold text-xs mb-1 ${
-                          achievement.unlocked ? 'text-foreground mystic-glow' : 'text-muted-foreground'
-                        }`}>
+                        <h5 className={`font-bold text-xs mb-1 ${achievement.unlocked ? 'text-foreground mystic-glow' : 'text-muted-foreground'
+                          }`}>
                           {achievement.name}
                         </h5>
                         <p className="text-xs text-muted-foreground">{achievement.description}</p>
