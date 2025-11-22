@@ -15,7 +15,7 @@ import { TaskResponse } from "@/types/task";
 import { registerSkill } from "@/services/skillService";
 
 const Skills = () => {
-  const { tasks, refreshTasks } = UseTasks();
+  const { tasks } = UseTasks();
   const { skills, refreshSkills } = UseSkills();
 
   const [name, setName] = useState("");
@@ -121,7 +121,9 @@ const Skills = () => {
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mb-2">
-                    {completedTasks.filter(t => t.skillName === skill.name).length} tarefas completas
+                    {completedTasks.filter(t => t.skillName === skill.name).length === 1
+                      ? completedTasks.filter(t => t.skillName === skill.name).length + ' tarefa completa'
+                      : completedTasks.filter(t => t.skillName === skill.name).length + ' tarefas completas'}
                   </p>
                 </div>
               </div>
@@ -179,8 +181,8 @@ const Skills = () => {
                       type="button"
                       onClick={() => setIcon(skillIcon)}
                       className={`p-2 text-2xl border-2 pixel-corners transition-all ${icon === skillIcon
-                          ? 'border-primary bg-primary/20'
-                          : 'border-border/30 hover:border-primary/50'
+                        ? 'border-primary bg-primary/20'
+                        : 'border-border/30 hover:border-primary/50'
                         }`}
                     >
                       {getEmoji(skillIcon)}
