@@ -27,8 +27,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState(user.name);
-  const [nickname, setNickname] = useState(user.nickname);
-  const [newEmail, setNewEmail] = useState(user.email);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [ownedAvatars, setOwnedAvatars] = useState<AvatarResponse[]>(() => avatars.filter(a => a.owned));
@@ -90,25 +88,17 @@ const Profile = () => {
       }
     }
 
-    if ((name == user.name && nickname == user.nickname && newEmail == user.email) && !newPassword) {
+    if (name == user.name && !newPassword) {
       toast.info("As informações não foram alteradas.");
     } else {
-      const userData: UserUpdateRequest = {
-        name,
-        nickname,
-        email: newEmail
-      };
+      const userData: UserUpdateRequest = {name};
       try {
         const response = await updateUser(user.id, userData);
         if (response.status === 204) {
           toast.success("Salvo!");
         }
       } catch (error: any) {
-        if (error?.response?.status === 409) {
-          toast.error("Email ou nickname já existem.");
-        } else {
-          toast.error("Erro ao atualizar informações. Tente novamente.");
-        }
+        toast.error("Erro ao atualizar informações. Tente novamente.");
         console.error(error);
       }
     }
@@ -245,31 +235,6 @@ const Profile = () => {
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="bg-background text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
-                    <User className="w-3 h-3" />
-                    Usuário
-                  </label>
-                  <Input
-                    type="text"
-                    value={nickname}
-                    onChange={(e) => setNickname(e.target.value)}
-                    className="bg-background text-xs"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-foreground mb-1 block flex items-center gap-2">
-                    <Mail className="w-3 h-3" />
-                    Email
-                  </label>
-                  <Input
-                    type="email"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    autoComplete="off"
                     className="bg-background text-xs"
                   />
                 </div>

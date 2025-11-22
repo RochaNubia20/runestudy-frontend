@@ -23,8 +23,6 @@ export interface UserCreateRequest {
 
 export interface UserUpdateRequest {
   name: string
-  nickname: string
-  email: string
 }
 
 export interface ChangePasswordRequest {
