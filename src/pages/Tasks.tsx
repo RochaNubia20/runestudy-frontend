@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -6,110 +6,91 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Lock, Unlock, Edit, Trash2, CheckCircle, Circle } from "lucide-react";
+import { Plus, Lock, Unlock, Trash2, CheckCircle, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { CelebrationAnimation } from "@/components/CelebrationAnimation";
 import { getEmoji } from "@/constants/emojiMap";
-
-interface Task {
-  id: number;
-  title: string;
-  description: string;
-  locked: boolean;
-  status: "pending" | "completed";
-  skill: string;
-  difficulty: "easy" | "medium" | "hard";
-  xp: number;
-}
+import { UseTasks } from "@/contexts/TaskContext";
+import { TaskCreateRequest, TaskResponse } from "@/types/task";
+import { blockTask, completeTask, deleteTask, registerTask } from "@/services/taskService";
+import { UseSkills } from "@/contexts/SkillContext";
 
 const Tasks = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    {
-      id: 1,
-      title: "Estudar Cálculo I - Cap 3",
-      description: "Derivadas e integrais",
-      locked: false,
-      status: "pending",
-      skill: "Matemática",
-      difficulty: "hard",
-      xp: 50,
-    },
-    {
-      id: 2,
-      title: "Ler Cap 5 de História",
-      description: "Segunda Guerra Mundial",
-      locked: true,
-      status: "completed",
-      skill: "História",
-      difficulty: "medium",
-      xp: 30,
-    },
-  ]);
+  const { tasks, refreshTasks } = UseTasks();
+  const { skills, refreshSkills } = UseSkills();
 
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [skillName, setSkillName] = useState("");
+  const [pendingTasks, setPendingTasks] = useState<TaskResponse[]>(() => tasks.filter(t => t.status !== "completed"));
+  const [completedTasks, setCompletedTasks] = useState<TaskResponse[]>(() => tasks.filter(t => t.status === "completed"));
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editingTask, setEditingTask] = useState(null);
   const [celebration, setCelebration] = useState<{ type: "task" | "skill-level" | "player-level"; message?: string } | null>(null);
-  const [newTask, setNewTask] = useState({
-    title: "",
-    description: "",
-    skill: "",
-    difficulty: "medium" as "easy" | "medium" | "hard"
-  });
 
-  const difficultyXP = {
-    easy: 20,
-    medium: 30,
-    hard: 50,
-  };
+  useEffect(() => {
+    setPendingTasks(tasks.filter(t => t.status !== "completed"));
+    setCompletedTasks(tasks.filter(t => t.status === "completed"));
+  }, [tasks])
 
-  const handleComplete = (taskId: number) => {
+
+  const handleComplete = async (taskId: number) => {
+    await completeTask(taskId);
+    await refreshTasks();
+
     const task = tasks.find(t => t.id === taskId);
-    setTasks(tasks.map(task => 
-      task.id === taskId ? { ...task, status: "completed" as const } : task
-    ));
-    
-    setCelebration({ type: "task", message: `+${task?.xp || 0} XP` });
+
+    setCelebration({ type: "task", message: `+${task.taskXP || 0} XP` });
   };
 
-  const handleToggleLock = (taskId: number) => {
-    setTasks(tasks.map(task => 
-      task.id === taskId && task.status !== "completed" 
-        ? { ...task, locked: !task.locked } 
-        : task
-    ));
+  const handleToggleLock = async (taskId: number) => {
+    await blockTask(taskId);
+    await refreshTasks();
+
+    const task = tasks.find(t => t.id === taskId);
+
+    toast.info(task.status === "blocked" ? "Tarefa bloqueada." : "Tarefa desbloqueada.");
   };
 
-  const handleDelete = (taskId: number) => {
-    setTasks(tasks.filter(task => task.id !== taskId));
-    toast.success("Tarefa excluída!");
+  const handleDelete = async (taskId: number) => {
+    try {
+      await deleteTask(taskId);
+      await refreshTasks();
+      toast.success("Tarefa excluída!");
+    } catch (error) {
+      toast.error("Não foi possível excluir tarefa.")
+      console.error(error?.response?.data);
+    }
   };
 
-  const handleCreateTask = (e: React.FormEvent) => {
+  const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTask.title || !newTask.skill) {
-      toast.error("Preencha título e habilidade!");
+    if (!title || !difficulty || !skillName ) {
+      toast.error("Preencha todos os campos.");
       return;
     }
 
-    const task: Task = {
-      id: Date.now(),
-      title: newTask.title,
-      description: newTask.description,
-      locked: false,
-      status: "pending",
-      skill: newTask.skill,
-      difficulty: newTask.difficulty,
-      xp: difficultyXP[newTask.difficulty],
-    };
+    const newTask: TaskCreateRequest = {
+      title,
+      description,
+      difficulty,
+      skillName
+    }
 
-    setTasks([...tasks, task]);
-    setNewTask({ title: "", description: "", skill: "", difficulty: "medium" });
-    setIsDialogOpen(false);
-    toast.success("Tarefa criada com sucesso!");
+    try {
+      const response = await registerTask(newTask);
+
+      if (response.status === 201) {
+        await refreshTasks();
+        setIsDialogOpen(false);
+        toast.success("Tarefa criada com sucesso!");
+      }
+    } catch (error) {
+      toast.error("Erro ao criar tarefa. Tente novamente.");
+      console.error(error);
+    }
   };
-
-  const pendingTasks = tasks.filter(t => t.status === "pending");
-  const completedTasks = tasks.filter(t => t.status === "completed");
 
   return (
     <>
@@ -120,7 +101,7 @@ const Tasks = () => {
           onComplete={() => setCelebration(null)}
         />
       )}
-      
+
       <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-6">
@@ -130,7 +111,7 @@ const Tasks = () => {
             </h2>
             <p className="text-muted-foreground text-xs">Organize estudos e ganhe XP</p>
           </div>
-          
+
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="mystic" size="sm" onClick={() => setEditingTask(null)}>
@@ -147,41 +128,37 @@ const Tasks = () => {
               <form className="space-y-3" onSubmit={handleCreateTask}>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block">Título</label>
-                  <Input 
-                    placeholder="Ex: Estudar Cálculo I" 
+                  <Input
+                    placeholder="Ex: Estudar Cálculo I"
                     className="bg-background text-xs"
-                    value={newTask.title}
-                    onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
                   />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block">Descrição</label>
-                  <Textarea 
-                    placeholder="Descreva sua tarefa..." 
-                    className="bg-background text-xs" 
+                  <Textarea
+                    placeholder="Descreva sua tarefa..."
+                    className="bg-background text-xs"
                     rows={2}
-                    value={newTask.description}
-                    onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block">Habilidade</label>
-                  <Select value={newTask.skill} onValueChange={(value) => setNewTask({...newTask, skill: value})}>
+                  <Select value={skillName} onValueChange={(value) => setSkillName(value)}>
                     <SelectTrigger className="bg-background text-xs">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Matemática">Matemática</SelectItem>
-                      <SelectItem value="História">História</SelectItem>
-                      <SelectItem value="Física">Física</SelectItem>
-                      <SelectItem value="Química">Química</SelectItem>
-                      <SelectItem value="Biologia">Biologia</SelectItem>
+                      {skills.map(skill => <SelectItem key={skill.id} value={skill.name}>{skill.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-foreground mb-1 block">Dificuldade</label>
-                  <Select value={newTask.difficulty} onValueChange={(value: any) => setNewTask({...newTask, difficulty: value})}>
+                  <Select value={difficulty} onValueChange={(value) => setDifficulty(value)}>
                     <SelectTrigger className="bg-background text-xs">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
@@ -213,43 +190,43 @@ const Tasks = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="text-sm font-bold text-foreground">{task.title}</h4>
-                      {task.locked && (
+                      {task.status === "blocked" && (
                         <Badge variant="outline" className="border-primary/50 text-xs">
                           <Lock className="w-2 h-2 mr-1" />
                           Bloq
                         </Badge>
                       )}
                       <Badge variant="secondary" className="text-xs">
-                        {task.difficulty === "easy" && "Fácil"}
-                        {task.difficulty === "medium" && "Médio"}
-                        {task.difficulty === "hard" && "Difícil"}
+                        {task.taskXP === 20 && "Fácil"}
+                        {task.taskXP === 30 && "Médio"}
+                        {task.taskXP === 50 && "Difícil"}
                       </Badge>
                     </div>
-                    <p className="text-muted-foreground text-xs mb-2">{task.description}</p>
+                    <p className="text-muted-foreground text-xs mb-2">{task.description || null }</p>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skill}</span>
-                      <span className="text-secondary font-bold">⚡ +{task.xp} XP</span>
+                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skillName}</span>
+                      <span className="text-secondary font-bold">⚡ +{task.taskXP} XP</span>
                     </div>
                   </div>
                   <div className="flex gap-1">
-                    <Button 
-                      variant="outline" 
+                    <Button
+                      variant="outline"
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => handleToggleLock(task.id)}
                     >
-                      {task.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
+                      {task.status === "blocked" ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />}
                     </Button>
-                    <Button 
-                      variant="mystic" 
+                    <Button
+                      variant="mystic"
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => handleComplete(task.id)}
                     >
                       <CheckCircle className="w-3 h-3" />
                     </Button>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="destructive"
                       size="sm"
                       className="h-8 w-8 p-0"
                       onClick={() => handleDelete(task.id)}
@@ -288,12 +265,12 @@ const Tasks = () => {
                     </div>
                     <p className="text-muted-foreground text-xs mb-2">{task.description}</p>
                     <div className="flex items-center gap-3 text-xs">
-                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skill}</span>
-                      <span className="text-secondary font-bold">⚡ +{task.xp} XP</span>
+                      <span className="text-primary font-bold">{getEmoji('quest')} {task.skillName}</span>
+                      <span className="text-secondary font-bold">⚡ +{task.taskXP} XP</span>
                     </div>
                   </div>
-                  <Button 
-                    variant="destructive" 
+                  <Button
+                    variant="destructive"
                     size="sm"
                     className="h-8 w-8 p-0"
                     onClick={() => handleDelete(task.id)}

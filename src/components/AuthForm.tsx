@@ -2,49 +2,77 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { UserCreateRequest } from "@/types/user";
 import { toast } from "sonner";
 import { Mail, Lock, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from "@/services/userService";
+import { UseAuth } from "@/contexts/AuthContext";
 
 export const AuthForm = () => {
+  const { login } = UseAuth();
   const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
-  const [identifier, setIdentifier] = useState("");
-  const [name, setname] = useState("");
-  const [nickname, setnickname] = useState("");
+  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [nickname, setNickname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLogin) {
-      if (!identifier || !password) {
+      if (!username || !password) {
         toast.error("Preencha o email/nickname e a senha.");
         return;
       }
+    } else {
+      if (!name || !nickname || !email || !password || !confirmPassword) {
+        toast.error("Preencha todos os campos para cadastro.");
+        return;
+      }
 
+      if (password !== confirmPassword) {
+        toast.error("As senhas não coincidem.");
+        return;
+      }
+
+      const newUser: UserCreateRequest = {
+        name,
+        nickname,
+        email,
+        password
+      };
+
+      try {
+        const response = await registerUser(newUser);
+
+        if (response.status === 201) {
+          toast.success("Conta criada com sucesso!");
+        }
+      } catch (error: any) {
+        if (error?.response?.status === 409) {
+          toast.error("Email ou nickname já existem.");
+        } else {
+          toast.error("Erro ao criar conta. Tente novamente.");
+        }
+        console.error(error);
+      }
+    }
+    try {
+      if (isLogin) {
+        await login({username, password });
+      } else {
+        await login({username: email, password });
+      }
       toast.success("Login realizado com sucesso!");
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 1000);
-      return;
-    }
+      setTimeout(() => navigate("/dashboard"), 1000);
 
-    if (!name || !nickname || !email || !password || !confirmPassword) {
-      toast.error("Preencha todos os campos para cadastro.");
-      return;
+    } catch (error) {
+      toast.error("Não foi possível realizar login.")
+      console.error(error);
     }
-
-    if (password !== confirmPassword) {
-      toast.error("As senhas não coincidem.");
-      return;
-    }
-
-    toast.success("Conta criada com sucesso!");
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1000);
   };
 
   return (
@@ -62,9 +90,9 @@ export const AuthForm = () => {
             </label>
             <Input
               type="text"
-              placeholder="seu@email.com ou seu_usuario"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              placeholder="email ou usuario"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               className="bg-input border-border focus:border-primary"
               required
             />
@@ -80,7 +108,7 @@ export const AuthForm = () => {
                 type="text"
                 placeholder="Nome"
                 value={name}
-                onChange={(e) => setname(e.target.value)}
+                onChange={(e) => setName(e.target.value)}
                 className="bg-input border-border focus:border-primary"
                 required
               />
@@ -95,7 +123,7 @@ export const AuthForm = () => {
                 type="text"
                 placeholder="seu_nickname"
                 value={nickname}
-                onChange={(e) => setnickname(e.target.value)}
+                onChange={(e) => setNickname(e.target.value)}
                 className="bg-input border-border focus:border-primary"
                 required
               />

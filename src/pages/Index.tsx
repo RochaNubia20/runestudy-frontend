@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { RuneLogo } from "@/components/RuneLogo";
 import { FeatureCard } from "@/components/FeatureCard";
 import { AuthForm } from "@/components/AuthForm";
-import { Sparkles, Trophy, Target, Coins, TrendingUp, Award, Scroll, Swords, Shield } from "lucide-react";
+import { Trophy, Coins, TrendingUp, Award, Scroll, Swords, Shield } from "lucide-react";
 import { getEmoji } from "@/constants/emojiMap";
 
 import heroKnight from "@/assets/hero-knight.png";

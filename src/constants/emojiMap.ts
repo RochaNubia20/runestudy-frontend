@@ -46,18 +46,7 @@ export const emojiMap: Record<string, string> = {
   achievement: "🏅",
 };
 
-// Função auxiliar para obter emoji pelo ID
-export const getEmoji = (emojiId: string): string => {
-  return emojiMap[emojiId] || "❓";
-};
-
-// Função auxiliar para obter ID pelo emoji (busca reversa)
-export const getEmojiId = (emoji: string): string | undefined => {
-  return Object.entries(emojiMap).find(([, val]) => val === emoji)?.[0];
-};
-
-// Array de IDs para uso em seletores
-export const commonEmojiIds = [
+export const skillIcons = [
   "math",
   "book",
   "react",
@@ -72,18 +61,12 @@ export const commonEmojiIds = [
   "notes",
 ];
 
-// Array de IDs para avatares
-export const avatarEmojiIds = [
-  "person",
-  "wizard",
-  "knight",
-  "shield",
-  "crown",
-  "bow",
-  "sword",
-  "lightning",
-  "crystal",
-  "star",
-  "lion",
-  "dragon",
-];
+// Função auxiliar para obter emoji pelo key
+export const getEmoji = (emojiKey: string): string => {
+  return emojiMap[emojiKey] || "❓";
+};
+
+// Função auxiliar para obter key pelo emoji (busca reversa)
+export const getEmojiKey = (emoji: string): string | undefined => {
+  return Object.entries(emojiMap).find(([, val]) => val === emoji)?.[0];
+};
