@@ -15,6 +15,7 @@ import { UseAuth } from "@/contexts/AuthContext";
 import { UseTasks } from "@/contexts/TaskContext";
 import { UseSkills } from "@/contexts/SkillContext";
 import { UseAvatars } from "@/contexts/AvatarContext";
+import { KnightCompanion } from "@/components/KnightCompanion";
 
 const Dashboard = () => {
   const { user, token, refreshUser } = UseAuth();
@@ -239,7 +240,6 @@ const Dashboard = () => {
             <Card className="relative p-4 bg-card border-2 border-secondary/30 pixel-corners overflow-hidden">
               <div
                 className="absolute top-0 right-0 w-20 h-20 opacity-10 bg-contain bg-no-repeat"
-                style={{ backgroundImage: `url(${cosmeticsImage})` }}
               />
               <h3 className="text-sm font-bold mb-3 text-secondary relative">🏪 Loja de Cosméticos</h3>
               <div className="space-y-2 max-h-64 overflow-y-auto relative">
@@ -294,6 +294,7 @@ const Dashboard = () => {
               </div>
             </Card>
           </div>
+          <KnightCompanion />
         </div>
       </main>
     </div>
