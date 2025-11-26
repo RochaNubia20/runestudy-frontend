@@ -156,11 +156,11 @@ const Dashboard = () => {
                     return -1;
                   }).slice(0, 5).map((task) => {
                     const taskCompleted = task.status === 'completed';
-
+                    
                     return (
                       <div
-                        key={task.id}
-                        className="flex items-center justify-between p-2 bg-background/50 border border-border/30 pixel-corners"
+                      key={task.id}
+                      className="flex items-center justify-between p-2 bg-background/50 border border-border/30 pixel-corners"
                       >
                         <div className="flex items-center gap-2">
                           <div className={`w-4 h-4 border-2 flex items-center justify-center pixel-corners ${taskCompleted ? 'bg-primary border-primary' : 'border-border'
@@ -202,6 +202,7 @@ const Dashboard = () => {
                 </div>
               </Card>
             </div>
+            <KnightCompanion />
           </div>
 
           <div className="space-y-4">
@@ -294,7 +295,6 @@ const Dashboard = () => {
               </div>
             </Card>
           </div>
-          <KnightCompanion />
         </div>
       </main>
     </div>
