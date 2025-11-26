@@ -34,10 +34,6 @@ const Profile = () => {
   const [userAvatar, setUserAvatar] = useState<string>(user.currentAvatarIcon);
 
   useEffect(() => {
-    refreshUser();
-  }, [user]);
-
-  useEffect(() => {
     setOwnedAvatars(avatars.filter(a => a.owned));
   }, [avatars]);
 
